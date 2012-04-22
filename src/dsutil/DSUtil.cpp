@@ -884,7 +884,7 @@ cdrom_t GetCDROMType(TCHAR drive, CAtlList<CString>& files)
                 {
                     for(ptrdiff_t i = TOC.FirstTrack; i <= TOC.LastTrack; i++)
                     {
-                        // MMC-3 Draft Revision 10g: Table 222 – Q Sub-channel control field
+                        // MMC-3 Draft Revision 10g: Table 222 - Q Sub-channel control field
                         TOC.TrackData[i-1].Control &= 5;
                         if(TOC.TrackData[i-1].Control == 0 || TOC.TrackData[i-1].Control == 1)
                         {
@@ -1621,7 +1621,7 @@ static struct
     {"Bikol", "bik", ""},
     {"Bini", "bin", ""},
     {"Bislama", "bis", "bi"},
-    {"Bokmål, Norwegian; Norwegian Bokmål", "nob", "nb"},
+    {"BokmÃ¥l, Norwegian; Norwegian BokmÃ¥l", "nob", "nb"},
     {"Bosnian", "bos", "bs"},
     {"Braj", "bra", ""},
     {"Breton", "bre", "br",						MAKELCID(MAKELANGID(LANG_BRETON, SUBLANG_DEFAULT), SORT_DEFAULT)},
@@ -1748,7 +1748,7 @@ static struct
     {"Greenlandic; Kalaallisut", "kal", "kl",	MAKELCID(MAKELANGID(LANG_GREENLANDIC, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Guarani", "grn", "gn"},
     {"Gujarati", "guj", "gu",					MAKELCID(MAKELANGID(LANG_GUJARATI, SUBLANG_DEFAULT), SORT_DEFAULT)},
-    {"Gwich´in", "gwi", ""},
+    {"Gwichâ€™in", "gwi", ""},
     {"Haida", "hai", ""},
     {"Hausa", "hau", "ha",						MAKELCID(MAKELANGID(LANG_HAUSA, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Hawaiian", "haw", ""},
@@ -1902,7 +1902,7 @@ static struct
     {"Northern Sami", "sme", "se"},
     {"North Ndebele", "nde", "nd"},
     {"Norwegian", "nor", "no",					MAKELCID(MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
-    {"Norwegian Bokmål; Bokmål, Norwegian", "nob", "nb",	MAKELCID(MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
+    {"Norwegian BokmÃ¥l; BokmÃ¥l, Norwegian", "nob", "nb",	MAKELCID(MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Norwegian Nynorsk; Nynorsk, Norwegian", "nno", "nn",	MAKELCID(MAKELANGID(LANG_NORWEGIAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Nubian languages", "nub", ""},
     {"Nyamwezi", "nym", ""},
@@ -1911,7 +1911,7 @@ static struct
     {"Nynorsk, Norwegian; Norwegian Nynorsk", "nno", "nn"},
     {"Nyoro", "nyo", ""},
     {"Nzima", "nzi", ""},
-    {"Occitan (post 1500},; Provençal", "oci", "oc",		MAKELCID(MAKELANGID(LANG_OCCITAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
+    {"Occitan (post 1500},; ProvenÃ§al", "oci", "oc",		MAKELCID(MAKELANGID(LANG_OCCITAN, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Ojibwa", "oji", "oj"},
     {"Old Bulgarian; Old Slavonic; Church Slavonic;", "chu", "cu"},
     {"Oriya", "ori", "or"},
@@ -1937,8 +1937,8 @@ static struct
     {"Polish", "pol", "pl",					MAKELCID(MAKELANGID(LANG_POLISH, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Portuguese", "por", "pt",				MAKELCID(MAKELANGID(LANG_PORTUGUESE, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Prakrit languages", "pra", ""},
-    {"Provençal; Occitan (post 1500)", "oci", "oc"},
-    {"Provençal, Old (to 1500)", "pro", ""},
+    {"ProvenÃ§al; Occitan (post 1500)", "oci", "oc"},
+    {"ProvenÃ§al, Old (to 1500)", "pro", ""},
     {"Pushto", "pus", "ps"},
     {"Quechua", "que", "qu",				MAKELCID(MAKELANGID(LANG_QUECHUA, SUBLANG_DEFAULT), SORT_DEFAULT)},
     {"Raeto-Romance", "roh", "rm"},
