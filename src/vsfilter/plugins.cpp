@@ -1034,7 +1034,7 @@ namespace VapourSynth {
 
         VSFilterData * data = new VSFilterData { std::move(d) };
 
-        vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallel, 0, data, core);
+        vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallelRequests, 0, data, core);
     }
 
     //////////////////////////////////////////
