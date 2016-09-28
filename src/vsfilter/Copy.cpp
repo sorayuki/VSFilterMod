@@ -112,7 +112,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
     }
 }
 
-#ifdef WIN64
+#ifdef _WIN64
 // For CPUID usage
 #include "../dsutil/vd.h"
 #include <emmintrin.h>
@@ -120,7 +120,7 @@ void BltLineRGB32(DWORD* d, BYTE* sub, int w, const GUID& subtype)
 /* ResX2 */
 void Scale2x(const GUID& subtype, BYTE* d, int dpitch, BYTE* s, int spitch, int w, int h)
 {
-#ifdef WIN64
+#ifdef _WIN64
     // CPUID from VDub
     bool fSSE2 = !!(g_cpuid.m_flags & CCpuID::sse2);
 #endif
@@ -172,7 +172,7 @@ void Scale2x(const GUID& subtype, BYTE* d, int dpitch, BYTE* s, int spitch, int 
             // ->
             // row0, 8 pixels: y1|u1|(y1+y2)/2|v1|y2|(u1+u2)/2|(y2+y3)/2|(v1+v2)/2
 
-#ifdef WIN64
+#ifdef _WIN64
             if(fSSE2)
             {
                 __m128i mm4 = _mm_cvtsi64_si128(__0x00ff00ff00ff00ff);
@@ -401,7 +401,7 @@ void Scale2x(const GUID& subtype, BYTE* d, int dpitch, BYTE* s, int spitch, int 
             BYTE* stmp = s1 + spitch;
             BYTE* dtmp = d1 + dpitch;
 
-#ifdef WIN64
+#ifdef _WIN64
             if(fSSE2) // SSE2 code
             {
                 __m128i mm_zero = _mm_setzero_si128();//pxor	mm0, mm0
@@ -485,7 +485,7 @@ void Scale2x(const GUID& subtype, BYTE* d, int dpitch, BYTE* s, int spitch, int 
         AvgLines8(d, h * 2, dpitch);
     }
 
-#ifndef WIN64
+#ifndef _WIN64
     __asm emms;
 #endif
 }

@@ -931,17 +931,12 @@ static __forceinline void pixmix2_sse2(DWORD* dst, DWORD color, DWORD shapealpha
 // Calculate a - b clamping to 0 instead of underflowing
 static __forceinline DWORD safe_subtract(DWORD a, DWORD b)
 {
-#ifndef _WIN64
     __m64 ap = _mm_cvtsi32_si64(a);
     __m64 bp = _mm_cvtsi32_si64(b);
     __m64 rp = _mm_subs_pu16(ap, bp);
     DWORD r = (DWORD)_mm_cvtsi64_si32(rp);
     _mm_empty();
     return r;
-#else
-    // For whatever reason Microsoft's x64 compiler doesn't support MMX intrinsics
-    return (b > a) ? 0 : a - b;
-#endif
 }
 
 static __forceinline DWORD safe_subtract_sse2(DWORD a, DWORD b)
@@ -2100,9 +2095,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
 #endif
     // Remember to EMMS!
     // Rendering fails in funny ways if we don't do this.
-#if defined(_M_IX86)
     _mm_empty();
-#endif
 
     return bbox;
 }

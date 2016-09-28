@@ -1076,7 +1076,7 @@ UINT_PTR CALLBACK OpenHookProc(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lPar
 
     case WM_INITDIALOG:
     {
-#ifdef WIN64
+#ifdef _WIN64
         SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
 #else
         SetWindowLongPtr(hDlg, GWL_USERDATA, lParam);

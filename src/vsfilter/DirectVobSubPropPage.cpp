@@ -36,7 +36,7 @@
 #include "..\..\include\Version.h"
 #endif
 
-#ifdef WIN64
+#ifdef _WIN64
 #define VERSION_ARCH x64
 #else
 #define VERSION_ARCH x86
