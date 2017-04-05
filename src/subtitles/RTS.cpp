@@ -2611,7 +2611,7 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             {
                 if(Effect* e = new Effect)
                 {
-                    e->param[0] = 1; // радиальный мов
+                    e->param[0] = 1; // Radial move
                     e->param[1] = (int)(sub->m_scalex * wcstod(params[0], NULL) * 8); // x1
                     e->param[2] = (int)(sub->m_scaley * wcstod(params[1], NULL) * 8); // y1
                     e->param[3] = (int)(sub->m_scalex * wcstod(params[2], NULL) * 8); // x2
@@ -3493,8 +3493,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
                     int t1 = s->m_effects[k]->t[0];
                     int t2 = s->m_effects[k]->t[1];
 
-                    CPoint pr1 = (p1.x + cos(alp1) * r0.x, p1.y + sin(alp1) * r0.x);
-                    CPoint pr2 = (p2.x + cos(alp2) * r0.y, p2.y + sin(alp2) * r0.y);
+					CPoint pr1(p1.x + cos(alp1) * r0.x, p1.y - sin(alp1) * r0.x);
+					CPoint pr2(p2.x + cos(alp2) * r0.y, p2.y - sin(alp2) * r0.y);
 
                     if(t2 < t1)
                     {
