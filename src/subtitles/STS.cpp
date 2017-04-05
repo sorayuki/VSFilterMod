@@ -3522,8 +3522,9 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
     if(!png_ptr) return false;  // png_create_read_struct failed
 
     png_init_io(png_ptr, fp);
-    return processData(png_ptr);
+    bool retVal = processData(png_ptr);
     fclose(fp);
+	return retVal;
 }
 
 bool MOD_PNGIMAGE::initImage(BYTE* data, CString m_fn)
