@@ -2120,7 +2120,6 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                         MOD_PNGIMAGE t_temp = mod_images[k];
                         if(t_temp.filename == params[0]) // found buffered image
                         {
-
                             style.mod_grad.b_images[i] = t_temp;
                             t_init = true;
                             break;
@@ -3493,8 +3492,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
                     int t1 = s->m_effects[k]->t[0];
                     int t2 = s->m_effects[k]->t[1];
 
-					CPoint pr1(p1.x + cos(alp1) * r0.x, p1.y - sin(alp1) * r0.x);
-					CPoint pr2(p2.x + cos(alp2) * r0.y, p2.y - sin(alp2) * r0.y);
+                    CPoint pr1(p1.x + cos(alp1) * r0.x, p1.y - sin(alp1) * r0.x);
+                    CPoint pr2(p2.x + cos(alp2) * r0.y, p2.y - sin(alp2) * r0.y);
 
                     if(t2 < t1)
                     {
