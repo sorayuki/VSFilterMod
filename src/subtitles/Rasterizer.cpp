@@ -57,8 +57,8 @@ Rasterizer::~Rasterizer()
 
 void Rasterizer::_TrashPath()
 {
-    delete [] mpPathTypes;
-    delete [] mpPathPoints;
+    free(mpPathTypes);
+    free(mpPathPoints);
     mpPathTypes = NULL;
     mpPathPoints = NULL;
     mPathPoints = 0;

@@ -3514,15 +3514,24 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
     filename = m_fn;
 
     FILE *fp = fopen(fn, "rb");
-    if(!fp) return false;  // File could not be opened for reading
-    fread(header, 1, 8, fp);
-    if(png_sig_cmp((png_bytep)header, 0, 8)) return false;  // File is not recognized as a PNG file
+	bool retVal = false;
+	do
+	{
+		if (!fp) // File could not be opened for reading
+			break;
 
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if(!png_ptr) return false;  // png_create_read_struct failed
+		fread(header, 1, 8, fp);
+		if (png_sig_cmp((png_bytep)header, 0, 8)) // File is not recognized as a PNG file
+			break;
 
-    png_init_io(png_ptr, fp);
-    bool retVal = processData(png_ptr);
+		png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+		if (!png_ptr) // png_create_read_struct failed
+			break;
+
+		png_init_io(png_ptr, fp);
+		retVal = processData(png_ptr);
+	} while (false);
+	delete[] fn;
     fclose(fp);
 	return retVal;
 }
