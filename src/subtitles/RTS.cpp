@@ -3283,7 +3283,7 @@ CSubtitle* CRenderedTextSubtitle::GetSubtitle(int entry)
 
     sub->MakeLines(m_size, marginRect);
 
-    m_subtitleCache[entry] = sub;
+    //m_subtitleCache[entry] = sub;
 
     return(sub);
 }
@@ -3875,6 +3875,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 #endif
             p.y += l->m_ascent + l->m_descent;
         }
+
+		delete s;
     }
 
     bbox = bbox2;
