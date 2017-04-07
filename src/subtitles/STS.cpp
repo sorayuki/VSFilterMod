@@ -1620,6 +1620,26 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                                                           : (style->scrAlignment & 8) ? ((style->scrAlignment & 3) + 3) // mid
                                                           : (style->scrAlignment & 3); // bottom
 
+#if defined(_VSMOD)
+				//set initial value for gradient
+				for (int i = 0; i < 4; ++i)
+				{
+					style->mod_grad.alphas[i] = style->alpha[i];
+					style->mod_grad.colors[i] = style->colors[i];
+
+					COLORREF revClr = style->colors[i];
+					revClr = ((revClr >> 16) & 0xff)
+						| (revClr & 0xff00)
+						| ((revClr & 0xff) << 16);
+
+					for (int j = 0; j < 4; ++j)
+					{
+						style->mod_grad.alpha[i][j] = style->alpha[i];
+						style->mod_grad.color[i][j] = revClr;
+					}
+				}
+#endif
+
                 StyleName.TrimLeft('*');
 
                 ret.AddStyle(StyleName, style);
@@ -1692,6 +1712,20 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         {
             ret.LoadUUEFile(file, GetStr(buff));
         }
+		else if (entry == L"respathforaegisub")
+		{
+			std::vector<TCHAR> tmp(MAX_PATH);
+			size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
+			CString tmpstr = tmp.data();
+			tmpstr.MakeLower();
+			if (tmpstr.Find(TEXT("aegisub")) >= 0)
+			{
+				CString resPath = GetStr(buff).Trim();
+				if (resPath.GetLength() > 0 && resPath[resPath.GetLength() - 1] != TEXT('\\'))
+					resPath += '\\';
+				ret.m_resPath = resPath;
+			}
+		}
 #endif
     }
 
