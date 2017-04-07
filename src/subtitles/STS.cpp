@@ -22,6 +22,8 @@
 #include "stdafx.h"
 #include "STS.h"
 #include <atlbase.h>
+#include <atlconv.h>
+#include <atlstr.h>
 
 #include "RealTextParser.h"
 #include <fstream>
@@ -3506,14 +3508,9 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
     char header[8];	// 8 is the maximum size that can be check
     png_structp png_ptr;
 
-    const wchar_t* wfn = m_fn.GetString();
-    int len = m_fn.GetLength();
-    char* fn = new char[len+1];
-    WideCharToMultiByte(CP_ACP, NULL, wfn, wcslen(wfn), fn, len, NULL, NULL);
-    fn[len] = 0;
     filename = m_fn;
 
-    FILE *fp = fopen(fn, "rb");
+    FILE *fp = _wfopen(CT2WEX<>(m_fn, CP_THREAD_ACP), L"rb");
 	bool retVal = false;
 	do
 	{
@@ -3531,8 +3528,8 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
 		png_init_io(png_ptr, fp);
 		retVal = processData(png_ptr);
 	} while (false);
-	delete[] fn;
-    fclose(fp);
+	if (fp)
+		fclose(fp);
 	return retVal;
 }
 
