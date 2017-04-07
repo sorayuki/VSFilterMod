@@ -2114,7 +2114,8 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             {
                 if(!fAnimate)
                 {
-                    CString fpath = m_path.Left(m_path.ReverseFind('\\') + 1);
+					CString fpath = !m_resPath.IsEmpty() ? m_resPath : m_path.Left(m_path.ReverseFind('\\') + 1);
+
                     bool t_init = false;
                     // buffer
                     for(ptrdiff_t k = 0, j = mod_images.GetCount(); k < j; k++)

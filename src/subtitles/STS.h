@@ -80,7 +80,7 @@ class MOD_GRADIENT
 public:
     COLORREF	colors[4]; // c
     COLORREF	alphas[4]; // a
-    COLORREF	color[4][4]; // vc
+    COLORREF	color[4][4]; // vc (rgb is reverted to style.colors)
     BYTE		alpha[4][4]; // va
     int		mode[4];
 
@@ -274,6 +274,7 @@ public:
     CSTSStyleMap m_styles;
 
 #ifdef _VSMOD
+	CString m_resPath;
     CAtlArray<MOD_PNGIMAGE> mod_images;
 
     // index array, for fast speed
