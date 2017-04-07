@@ -686,8 +686,10 @@ bool CPolygon::Append(CWord* w)
 
 bool CPolygon::GetLONG(CStringW& str, LONG& ret)
 {
+	double dblVal = 0;
     LPWSTR s = (LPWSTR)(LPCWSTR)str, e = s;
-    ret = wcstol(str, &e, 10);
+	dblVal = wcstod(str, &e);
+	ret = std::round(dblVal);
     str = str.Mid(e - s);
     return(e > s);
 }
@@ -3367,7 +3369,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 //    TRACE(_T("search complete: %d"), t);
     if(!stss) return S_FALSE;
 
-    // clear any cached subs not in the range of +/-30secs measured from the segment's bounds
+    // clear any cached subs that current position is not in its bounds
     {
         POSITION pos = m_subtitleCache.GetStartPosition();
         while(pos)
@@ -3377,7 +3379,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
             m_subtitleCache.GetNextAssoc(pos, key, value);
 
             STSEntry& stse = GetAt(key);
-            if(stse.end <= (t - 30000) || stse.start > (t + 30000))
+			if (stse.end <= (t) || stse.start > (t))
             {
                 delete value;
                 m_subtitleCache.RemoveKey(key);
@@ -3875,6 +3877,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 #endif
             p.y += l->m_ascent + l->m_descent;
         }
+
+		//delete s;
     }
 
     bbox = bbox2;
