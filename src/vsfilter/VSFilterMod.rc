@@ -1,7 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
-#include "..\..\include\VersionMod.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -14,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Hungarian resources
+// –Ÿ—¿¿˚”Ô(–Ÿ—¿¿˚) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HUN)
-#ifdef _WIN32
 LANGUAGE LANG_HUNGARIAN, SUBLANG_DEFAULT
 #pragma code_page(1250)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -35,18 +32,16 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Hungarian resources
+#endif    // –Ÿ—¿¿˚”Ô(–Ÿ—¿¿˚) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// ”¢”Ô(√¿π˙) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -74,8 +69,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_REV,VERSION_PATCH
- PRODUCTVERSION VERSION_MAJOR,VERSION_MINOR,VERSION_REV,VERSION_PATCH
+ FILEVERSION 1,1,92,0
+ PRODUCTVERSION 1,1,92,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -93,12 +88,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/vsfiltermod/"
             VALUE "CompanyName", "MPC-HC Team"
             VALUE "FileDescription", "VobSub & TextSubMod filter for DirectShow/VirtualDub/Avisynth/VapourSynth"
-            VALUE "FileVersion", MAKE_STR(VERSION_MAJOR) ", " MAKE_STR(VERSION_MINOR) ", " MAKE_STR(VERSION_REV) ", " MAKE_STR(VERSION_PATCH)
+            VALUE "FileVersion", "1.1.92.0"
             VALUE "InternalName", "VSFilter"
             VALUE "LegalCopyright", "Copyright (C) 2001-2010 see AUTHORS file"
             VALUE "OriginalFilename", "VSFilterMod.dll"
             VALUE "ProductName", "VSFilterMod"
-            VALUE "ProductVersion", MAKE_STR(VERSION_MAJOR) ", " MAKE_STR(VERSION_MINOR) ", " MAKE_STR(VERSION_REV) ", " MAKE_STR(VERSION_PATCH)
+            VALUE "ProductVersion", "1.1.92.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -356,7 +351,7 @@ IDI_ICON1               ICON                    "res\\Icon_147m.ico"
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_DVSABOUTPAGE, DIALOG
     BEGIN
@@ -475,7 +470,7 @@ END
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_PROJNAME            "&DirectVobSub Mod"
     IDD_DVSPATHSPAGE        "&Paths"
@@ -491,7 +486,7 @@ BEGIN
     IDS_RG_MOD32FIX         "Mod32Fix"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_RG_LOADLEVEL        "LoadLevel"
     IDS_RG_INSTANTUPDATE    "InstantUpdate"
@@ -511,7 +506,7 @@ BEGIN
     IDS_RT_COLOR            "Color"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_RT_OVERRIDEPLACEMENT "OverridePlacement"
     IDS_RT_XPERC            "XPerc"
@@ -529,7 +524,7 @@ BEGIN
     IDS_RG_EMBEDDEDLOAD     "EmbLoad"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_R_TIMING            "Timing"
     IDS_RTM_SUBTITLEDELAY   "Subtitle Delay"
@@ -549,7 +544,7 @@ BEGIN
     IDS_EXTTO43             "Extend to 4:3"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDD_DVSCOLORPAGE        "&Colors"
     IDD_DVSGENERALPAGE      "&General"
@@ -558,12 +553,12 @@ BEGIN
     IDS_R_GENERAL           "General"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDD_DVSMAINPAGE         "&Main"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_CROPTO169           "Crop to 16:9"
     IDS_CROPTO43            "Crop to 4:3"
@@ -582,12 +577,12 @@ BEGIN
     IDS_RT_PAR_ACCURATE_SIZE "Accurate size"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_RT_STYLE            "Style2"
 END
 
-#endif    // English (U.S.) resources
+#endif    // ”¢”Ô(√¿π˙) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -597,8 +592,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

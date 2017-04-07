@@ -22,6 +22,8 @@
 #include "stdafx.h"
 #include "STS.h"
 #include <atlbase.h>
+#include <atlconv.h>
+#include <atlstr.h>
 
 #include "RealTextParser.h"
 #include <fstream>
@@ -1618,6 +1620,26 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                                                           : (style->scrAlignment & 8) ? ((style->scrAlignment & 3) + 3) // mid
                                                           : (style->scrAlignment & 3); // bottom
 
+#if defined(_VSMOD)
+				//set initial value for gradient
+				for (int i = 0; i < 4; ++i)
+				{
+					style->mod_grad.alphas[i] = style->alpha[i];
+					style->mod_grad.colors[i] = style->colors[i];
+
+					COLORREF revClr = style->colors[i];
+					revClr = ((revClr >> 16) & 0xff)
+						| (revClr & 0xff00)
+						| ((revClr & 0xff) << 16);
+
+					for (int j = 0; j < 4; ++j)
+					{
+						style->mod_grad.alpha[i][j] = style->alpha[i];
+						style->mod_grad.color[i][j] = revClr;
+					}
+				}
+#endif
+
                 StyleName.TrimLeft('*');
 
                 ret.AddStyle(StyleName, style);
@@ -1690,6 +1712,23 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         {
             ret.LoadUUEFile(file, GetStr(buff));
         }
+		else if (entry == L"respathforaegisub")
+		{
+			std::vector<TCHAR> tmp(MAX_PATH);
+			size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
+			CString tmpstr = tmp.data();
+			tmpstr.MakeLower();
+			int lastSlash = tmpstr.ReverseFind(TEXT('\\'));
+			if (lastSlash > 0)
+				tmpstr = tmpstr.Mid(lastSlash);
+			if (tmpstr.Find(TEXT("aegisub")) >= 0)
+			{
+				CString resPath = GetStr(buff).Trim();
+				if (resPath.GetLength() > 0 && resPath[resPath.GetLength() - 1] != TEXT('\\'))
+					resPath += '\\';
+				ret.m_resPath = resPath;
+			}
+		}
 #endif
     }
 
@@ -3506,24 +3545,29 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
     char header[8];	// 8 is the maximum size that can be check
     png_structp png_ptr;
 
-    const wchar_t* wfn = m_fn.GetString();
-    int len = m_fn.GetLength();
-    char* fn = new char[len+1];
-    WideCharToMultiByte(CP_ACP, NULL, wfn, wcslen(wfn), fn, len, NULL, NULL);
-    fn[len] = 0;
     filename = m_fn;
 
-    FILE *fp = fopen(fn, "rb");
-    if(!fp) return false;  // File could not be opened for reading
-    fread(header, 1, 8, fp);
-    if(png_sig_cmp((png_bytep)header, 0, 8)) return false;  // File is not recognized as a PNG file
+    FILE *fp = _wfopen(CT2WEX<>(m_fn, CP_THREAD_ACP), L"rb");
+    bool retVal = false;
+    do
+    {
+        if (!fp) // File could not be opened for reading
+            break;
 
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if(!png_ptr) return false;  // png_create_read_struct failed
+        fread(header, 1, 8, fp);
+        if (png_sig_cmp((png_bytep)header, 0, 8)) // File is not recognized as a PNG file
+            break;
 
-    png_init_io(png_ptr, fp);
-    return processData(png_ptr);
-    fclose(fp);
+        png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+        if (!png_ptr) // png_create_read_struct failed
+            break;
+
+        png_init_io(png_ptr, fp);
+        retVal = processData(png_ptr);
+    } while (false);
+    if (fp)
+        fclose(fp);
+    return retVal;
 }
 
 bool MOD_PNGIMAGE::initImage(BYTE* data, CString m_fn)

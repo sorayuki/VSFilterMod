@@ -686,8 +686,10 @@ bool CPolygon::Append(CWord* w)
 
 bool CPolygon::GetLONG(CStringW& str, LONG& ret)
 {
+    double dblVal = 0;
     LPWSTR s = (LPWSTR)(LPCWSTR)str, e = s;
-    ret = wcstol(str, &e, 10);
+    dblVal = wcstod(str, &e);
+    ret = std::round(dblVal);
     str = str.Mid(e - s);
     return(e > s);
 }
@@ -2112,7 +2114,8 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             {
                 if(!fAnimate)
                 {
-                    CString fpath = m_path.Left(m_path.ReverseFind('\\') + 1);
+                    CString fpath = !m_resPath.IsEmpty() ? m_resPath : m_path.Left(m_path.ReverseFind('\\') + 1);
+
                     bool t_init = false;
                     // buffer
                     for(ptrdiff_t k = 0, j = mod_images.GetCount(); k < j; k++)
@@ -2120,7 +2123,6 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                         MOD_PNGIMAGE t_temp = mod_images[k];
                         if(t_temp.filename == params[0]) // found buffered image
                         {
-
                             style.mod_grad.b_images[i] = t_temp;
                             t_init = true;
                             break;
@@ -2140,13 +2142,13 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                     {
                         // not found
                         MOD_PNGIMAGE t_temp;
-//                        if(t_temp.initImage(params[0])) // absolute path or default directory
-//                        {
-//                            style.mod_grad.mode[i] = 2;
-//                            style.mod_grad.b_images[i] = t_temp;
-//                            mod_images.Add(t_temp);
-//                        }
-                        //else
+                        if(t_temp.initImage(params[0])) // absolute path or default directory
+                        {
+                            style.mod_grad.mode[i] = 2;
+                            style.mod_grad.b_images[i] = t_temp;
+                            mod_images.Add(t_temp);
+                        }
+                        else
                         if(t_temp.initImage(fpath + params[0])) // path + relative path
                         {
                             style.mod_grad.mode[i] = 2;
@@ -2611,7 +2613,7 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             {
                 if(Effect* e = new Effect)
                 {
-                    e->param[0] = 1; // радиальный мов
+                    e->param[0] = 1; // Radial move
                     e->param[1] = (int)(sub->m_scalex * wcstod(params[0], NULL) * 8); // x1
                     e->param[2] = (int)(sub->m_scaley * wcstod(params[1], NULL) * 8); // y1
                     e->param[3] = (int)(sub->m_scalex * wcstod(params[2], NULL) * 8); // x2
@@ -3368,7 +3370,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 //    TRACE(_T("search complete: %d"), t);
     if(!stss) return S_FALSE;
 
-    // clear any cached subs not in the range of +/-30secs measured from the segment's bounds
+    // clear any cached subs that current position is not in its bounds
     {
         POSITION pos = m_subtitleCache.GetStartPosition();
         while(pos)
@@ -3378,7 +3380,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
             m_subtitleCache.GetNextAssoc(pos, key, value);
 
             STSEntry& stse = GetAt(key);
-            if(stse.end <= (t - 30000) || stse.start > (t + 30000))
+            if (stse.end <= (t) || stse.start > (t))
             {
                 delete value;
                 m_subtitleCache.RemoveKey(key);
@@ -3493,8 +3495,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
                     int t1 = s->m_effects[k]->t[0];
                     int t2 = s->m_effects[k]->t[1];
 
-                    CPoint pr1 = (p1.x + cos(alp1) * r0.x, p1.y + sin(alp1) * r0.x);
-                    CPoint pr2 = (p2.x + cos(alp2) * r0.y, p2.y + sin(alp2) * r0.y);
+                    CPoint pr1(p1.x + cos(alp1) * r0.x, p1.y - sin(alp1) * r0.x);
+                    CPoint pr2(p2.x + cos(alp2) * r0.y, p2.y - sin(alp2) * r0.y);
 
                     if(t2 < t1)
                     {
@@ -3876,6 +3878,8 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 #endif
             p.y += l->m_ascent + l->m_descent;
         }
+
+        //delete s;
     }
 
     bbox = bbox2;

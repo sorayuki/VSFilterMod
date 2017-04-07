@@ -57,8 +57,8 @@ Rasterizer::~Rasterizer()
 
 void Rasterizer::_TrashPath()
 {
-    delete [] mpPathTypes;
-    delete [] mpPathPoints;
+    free(mpPathTypes);
+    free(mpPathPoints);
     mpPathTypes = NULL;
     mpPathPoints = NULL;
     mPathPoints = 0;
@@ -2159,11 +2159,23 @@ byte MOD_MOVEVC::GetAlphaValue(int wx, int wy)
 //		return 0xFF;
         return alphamask[wx+((hfull-wy)*spd.cx)];
     }
-    if((wx - pos.x) < -curpos.x + 1) alpham = 0;
-    else if((wx - pos.x) > spd.cx - 1) alpham = 0; //canvas.cx
-    else if((hfull - wy - pos.y) < -curpos.y + 1) alpham = 0;
-    else if((hfull - wy - pos.y) > spd.cy - 1) alpham = 0;
-    else alpham = alphamask[wx-pos.x - pos.y*spd.cx+((hfull-wy)*spd.cx)];
+
+	int xInCanvas = wx - pos.x + curpos.x;
+	int yInCanvas = -pos.y + (hfull - wy) + curpos.y;
+
+	//check if the point is in canvas, in case of crash
+	if (xInCanvas < 0 || xInCanvas >= spd.cx)
+		alpham = 0;
+	else if (yInCanvas < 0 || yInCanvas >= spd.cy)
+		alpham = 0;
+	else
+	{
+		if ((wx - pos.x) < -curpos.x + 1) alpham = 0;
+		else if ((wx - pos.x) > spd.cx - 1) alpham = 0; //canvas.cx
+		else if ((hfull - wy - pos.y) < -curpos.y + 1) alpham = 0;
+		else if ((hfull - wy - pos.y) > spd.cy - 1) alpham = 0;
+		else alpham = alphamask[wx - pos.x - pos.y*spd.cx + ((hfull - wy)*spd.cx)];
+	}
 
     return alpham;
 }

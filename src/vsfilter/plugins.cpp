@@ -317,14 +317,14 @@ public:
 
     void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str)
     {
-        sprintf(str, " (%s)", !GetFileName().IsEmpty() ? CStringA(GetFileName()) : " (empty)");
+        sprintf(str, " (%s)", !GetFileName().IsEmpty() ? static_cast<const char*>(CStringA(GetFileName())) : " (empty)");
     }
 
     bool FssProc(VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* buf, int buflen)
     {
         CStringA fn(GetFileName());
         fn.Replace("\\", "\\\\");
-        _snprintf(buf, buflen, "Config(\"%s\")", fn);
+        _snprintf(buf, buflen, "Config(\"%s\")", static_cast<const char*>(fn));
         return(true);
     }
 };
@@ -363,7 +363,7 @@ public:
 
     void StringProc(const VDXFilterActivation* fa, const VDXFilterFunctions* ff, char* str)
     {
-        if(!GetFileName().IsEmpty()) sprintf(str, " (%s, %d)", CStringA(GetFileName()), GetCharSet());
+        if(!GetFileName().IsEmpty()) sprintf(str, " (%s, %d)", static_cast<const char*>(CStringA(GetFileName())), GetCharSet());
         else sprintf(str, " (empty)");
     }
 
@@ -371,7 +371,7 @@ public:
     {
         CStringA fn(GetFileName());
         fn.Replace("\\", "\\\\");
-        _snprintf(buf, buflen, "Config(\"%s\", %d)", fn, GetCharSet());
+        _snprintf(buf, buflen, "Config(\"%s\", %d)", static_cast<const char*>(fn), GetCharSet());
         return(true);
     }
 };
