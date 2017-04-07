@@ -274,7 +274,7 @@ public:
     CSTSStyleMap m_styles;
 
 #ifdef _VSMOD
-	CString m_resPath;
+    CString m_resPath;
     CAtlArray<MOD_PNGIMAGE> mod_images;
 
     // index array, for fast speed

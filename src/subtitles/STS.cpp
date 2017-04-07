@@ -1718,6 +1718,9 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
 			size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
 			CString tmpstr = tmp.data();
 			tmpstr.MakeLower();
+			int lastSlash = tmpstr.ReverseFind(TEXT('\\'));
+			if (lastSlash > 0)
+				tmpstr = tmpstr.Mid(lastSlash);
 			if (tmpstr.Find(TEXT("aegisub")) >= 0)
 			{
 				CString resPath = GetStr(buff).Trim();
@@ -3545,26 +3548,26 @@ bool MOD_PNGIMAGE::initImage(CString m_fn)
     filename = m_fn;
 
     FILE *fp = _wfopen(CT2WEX<>(m_fn, CP_THREAD_ACP), L"rb");
-	bool retVal = false;
-	do
-	{
-		if (!fp) // File could not be opened for reading
-			break;
+    bool retVal = false;
+    do
+    {
+        if (!fp) // File could not be opened for reading
+            break;
 
-		fread(header, 1, 8, fp);
-		if (png_sig_cmp((png_bytep)header, 0, 8)) // File is not recognized as a PNG file
-			break;
+        fread(header, 1, 8, fp);
+        if (png_sig_cmp((png_bytep)header, 0, 8)) // File is not recognized as a PNG file
+            break;
 
-		png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-		if (!png_ptr) // png_create_read_struct failed
-			break;
+        png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+        if (!png_ptr) // png_create_read_struct failed
+            break;
 
-		png_init_io(png_ptr, fp);
-		retVal = processData(png_ptr);
-	} while (false);
-	if (fp)
-		fclose(fp);
-	return retVal;
+        png_init_io(png_ptr, fp);
+        retVal = processData(png_ptr);
+    } while (false);
+    if (fp)
+        fclose(fp);
+    return retVal;
 }
 
 bool MOD_PNGIMAGE::initImage(BYTE* data, CString m_fn)

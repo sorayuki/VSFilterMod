@@ -686,10 +686,10 @@ bool CPolygon::Append(CWord* w)
 
 bool CPolygon::GetLONG(CStringW& str, LONG& ret)
 {
-	double dblVal = 0;
+    double dblVal = 0;
     LPWSTR s = (LPWSTR)(LPCWSTR)str, e = s;
-	dblVal = wcstod(str, &e);
-	ret = std::round(dblVal);
+    dblVal = wcstod(str, &e);
+    ret = std::round(dblVal);
     str = str.Mid(e - s);
     return(e > s);
 }
@@ -2114,7 +2114,7 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             {
                 if(!fAnimate)
                 {
-					CString fpath = !m_resPath.IsEmpty() ? m_resPath : m_path.Left(m_path.ReverseFind('\\') + 1);
+                    CString fpath = !m_resPath.IsEmpty() ? m_resPath : m_path.Left(m_path.ReverseFind('\\') + 1);
 
                     bool t_init = false;
                     // buffer
@@ -2142,13 +2142,13 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                     {
                         // not found
                         MOD_PNGIMAGE t_temp;
-//                        if(t_temp.initImage(params[0])) // absolute path or default directory
-//                        {
-//                            style.mod_grad.mode[i] = 2;
-//                            style.mod_grad.b_images[i] = t_temp;
-//                            mod_images.Add(t_temp);
-//                        }
-                        //else
+                        if(t_temp.initImage(params[0])) // absolute path or default directory
+                        {
+                            style.mod_grad.mode[i] = 2;
+                            style.mod_grad.b_images[i] = t_temp;
+                            mod_images.Add(t_temp);
+                        }
+                        else
                         if(t_temp.initImage(fpath + params[0])) // path + relative path
                         {
                             style.mod_grad.mode[i] = 2;
@@ -3380,7 +3380,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
             m_subtitleCache.GetNextAssoc(pos, key, value);
 
             STSEntry& stse = GetAt(key);
-			if (stse.end <= (t) || stse.start > (t))
+            if (stse.end <= (t) || stse.start > (t))
             {
                 delete value;
                 m_subtitleCache.RemoveKey(key);
@@ -3879,7 +3879,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
             p.y += l->m_ascent + l->m_descent;
         }
 
-		//delete s;
+        //delete s;
     }
 
     bbox = bbox2;
