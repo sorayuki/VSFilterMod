@@ -1712,7 +1712,7 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         {
             ret.LoadUUEFile(file, GetStr(buff));
         }
-		else if (entry == L"respathforaegisub")
+		else if (entry == L"update details")
 		{
 			std::vector<TCHAR> tmp(MAX_PATH);
 			size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
