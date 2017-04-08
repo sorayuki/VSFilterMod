@@ -929,15 +929,6 @@ static __forceinline void pixmix2_sse2(DWORD* dst, DWORD color, DWORD shapealpha
 #include <mmintrin.h>
 
 // Calculate a - b clamping to 0 instead of underflowing
-static __forceinline DWORD safe_subtract(DWORD a, DWORD b)
-{
-    __m64 ap = _mm_cvtsi32_si64(a);
-    __m64 bp = _mm_cvtsi32_si64(b);
-    __m64 rp = _mm_subs_pu16(ap, bp);
-    DWORD r = (DWORD)_mm_cvtsi64_si32(rp);
-    _mm_empty();
-    return r;
-}
 
 static __forceinline DWORD safe_subtract_sse2(DWORD a, DWORD b)
 {
@@ -946,6 +937,20 @@ static __forceinline DWORD safe_subtract_sse2(DWORD a, DWORD b)
     __m128i rp = _mm_subs_epu16(ap, bp);
 
     return (DWORD)_mm_cvtsi128_si32(rp);
+}
+
+static __forceinline DWORD safe_subtract(DWORD a, DWORD b)
+{
+#ifndef _M_X64
+    __m64 ap = _mm_cvtsi32_si64(a);
+    __m64 bp = _mm_cvtsi32_si64(b);
+    __m64 rp = _mm_subs_pu16(ap, bp);
+    DWORD r = (DWORD)_mm_cvtsi64_si32(rp);
+    _mm_empty();
+    return r;
+#else
+    return safe_subtract_sse2(a, b);
+#endif
 }
 
 // For CPUID usage in Rasterizer::Draw
@@ -2095,7 +2100,10 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
 #endif
     // Remember to EMMS!
     // Rendering fails in funny ways if we don't do this.
+
+#ifndef _M_X64
     _mm_empty();
+#endif
 
     return bbox;
 }

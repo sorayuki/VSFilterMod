@@ -87,7 +87,9 @@ CBasePin* CBaseVideoFilter::GetPin(int n)
 
 HRESULT CBaseVideoFilter::Receive(IMediaSample* pIn)
 {
+#ifndef _M_X64
     _mm_empty(); // just for safety
+#endif
 
     CAutoLock cAutoLock(&m_csReceive);
 
