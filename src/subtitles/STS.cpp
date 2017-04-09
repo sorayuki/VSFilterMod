@@ -28,6 +28,11 @@
 #include "RealTextParser.h"
 #include <fstream>
 
+static long revcolor(long c)
+{
+    return ((c & 0xff0000) >> 16) + (c & 0xff00) + ((c & 0xff) << 16);
+}
+
 // gathered from http://www.netwave.or.jp/~shikai/shikai/shcolor.htm
 
 struct htmlcolor
@@ -290,9 +295,9 @@ int FindChar(CStringW str, WCHAR c, int pos, bool fUnicode, int CharSet)
 /*
 int FindChar(CStringA str, char c, int pos, bool fUnicode, int CharSet)
 {
-	ASSERT(!fUnicode);
+    ASSERT(!fUnicode);
 
-	return(FindChar(AToW(str), c, pos, false, CharSet));
+    return(FindChar(AToW(str), c, pos, false, CharSet));
 }
 */
 static CStringW ToMBCS(CStringW str, DWORD CharSet)
@@ -1048,51 +1053,51 @@ static CStringW SMI2SSA(CStringW str, int CharSet)
                     chars_inserted += 5 + arg.GetLength() + 2;
                 }
                 /*
-                				else if (arg.Find(_T("size=" )) == 0 )
-                				{
-                					uint fsize;
+                else if (arg.Find(_T("size=" )) == 0 )
+                {
+                    uint fsize;
 
-                					arg = arg.Mid(5);	// delete "size="
-                					if ( arg.GetLength() == 0)
-                						continue;
+                    arg = arg.Mid(5);	// delete "size="
+                    if ( arg.GetLength() == 0)
+                        continue;
 
-                					if ( fsize = _tcstol(arg, &tmp, 10) == 0 )
-                						continue;
+                    if ( fsize = _tcstol(arg, &tmp, 10) == 0 )
+                        continue;
 
-                					lstr.Insert(k + l + chars_inserted, CString(_T("{\\fs")) + arg + _T("&}"));
-                					str.Insert(k + l + chars_inserted, CString(_T("{\\fs")) + arg + _T("&}"));
-                					chars_inserted += 4 + arg.GetLength() + 2;
-                				}
+                    lstr.Insert(k + l + chars_inserted, CString(_T("{\\fs")) + arg + _T("&}"));
+                    str.Insert(k + l + chars_inserted, CString(_T("{\\fs")) + arg + _T("&}"));
+                    chars_inserted += 4 + arg.GetLength() + 2;
+                }
                 */
             }
         }
 
 // Original Code
         /*
-        		if (lstr.Find(L"<font color=", k) == k)
-        		{
-        			CStringW arg = lstr.Mid(k+12, l-12); // may include 2 * " + #
+        if (lstr.Find(L"<font color=", k) == k)
+        {
+            CStringW arg = lstr.Mid(k+12, l-12); // may include 2 * " + #
 
-        			arg.Remove('\"');
-        			arg.Remove('#');
-        			arg.TrimLeft(); arg.TrimRight(L" >");
+            arg.Remove('\"');
+            arg.Remove('#');
+            arg.TrimLeft(); arg.TrimRight(L" >");
 
-        			if(arg.GetLength() > 0)
-        			{
-        				DWORD color;
+            if(arg.GetLength() > 0)
+            {
+                DWORD color;
 
-        				CString key = WToT(arg);
-        				void* val;
-        				if(g_colors.Lookup(key, val)) color = (DWORD)val;
-        				else color = wcstol(arg, NULL, 16);
+                CString key = WToT(arg);
+                void* val;
+                if(g_colors.Lookup(key, val)) color = (DWORD)val;
+                else color = wcstol(arg, NULL, 16);
 
-        				arg.Format(L"%02x%02x%02x", color&0xff, (color>>8)&0xff, (color>>16)&0xff);
-        			}
+                arg.Format(L"%02x%02x%02x", color&0xff, (color>>8)&0xff, (color>>16)&0xff);
+            }
 
-        			lstr.Insert(k + l + chars_inserted, L"{\\c&H" + arg + L"&}");
-        			str.Insert(k + l + chars_inserted, L"{\\c&H" + arg + L"&}");
-        			chars_inserted += 5 + arg.GetLength() + 2;
-        		}
+            lstr.Insert(k + l + chars_inserted, L"{\\c&H" + arg + L"&}");
+            str.Insert(k + l + chars_inserted, L"{\\c&H" + arg + L"&}");
+            chars_inserted += 5 + arg.GetLength() + 2;
+        }
         */
         else if(lstr.Find(L"</font>", k) == k)
         {
@@ -1621,23 +1626,19 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
                                                           : (style->scrAlignment & 3); // bottom
 
 #if defined(_VSMOD)
-				//set initial value for gradient
-				for (int i = 0; i < 4; ++i)
-				{
-					style->mod_grad.alphas[i] = style->alpha[i];
-					style->mod_grad.colors[i] = style->colors[i];
+                //set initial value for gradient
+                for (int i = 0; i < 4; ++i)
+                {
+                    style->mod_grad.alphas[i] = style->alpha[i];
+                    style->mod_grad.colors[i] = style->colors[i];
 
-					COLORREF revClr = style->colors[i];
-					revClr = ((revClr >> 16) & 0xff)
-						| (revClr & 0xff00)
-						| ((revClr & 0xff) << 16);
-
-					for (int j = 0; j < 4; ++j)
-					{
-						style->mod_grad.alpha[i][j] = style->alpha[i];
-						style->mod_grad.color[i][j] = revClr;
-					}
-				}
+                    COLORREF revClr = revcolor(style->colors[i]);
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        style->mod_grad.alpha[i][j] = style->alpha[i];
+                        style->mod_grad.color[i][j] = revClr;
+                    }
+                }
 #endif
 
                 StyleName.TrimLeft('*');
@@ -1712,23 +1713,23 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         {
             ret.LoadUUEFile(file, GetStr(buff));
         }
-		else if (entry == L"update details")
-		{
-			std::vector<TCHAR> tmp(MAX_PATH);
-			size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
-			CString tmpstr = tmp.data();
-			tmpstr.MakeLower();
-			int lastSlash = tmpstr.ReverseFind(TEXT('\\'));
-			if (lastSlash > 0)
-				tmpstr = tmpstr.Mid(lastSlash);
-			if (tmpstr.Find(TEXT("aegisub")) >= 0)
-			{
-				CString resPath = GetStr(buff).Trim();
-				if (resPath.GetLength() > 0 && resPath[resPath.GetLength() - 1] != TEXT('\\'))
-					resPath += '\\';
-				ret.m_resPath = resPath;
-			}
-		}
+        else if (entry == L"update details")
+        {
+            std::vector<TCHAR> tmp(MAX_PATH);
+            size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
+            CString tmpstr = tmp.data();
+            tmpstr.MakeLower();
+            int lastSlash = tmpstr.ReverseFind(TEXT('\\'));
+            if (lastSlash > 0)
+                tmpstr = tmpstr.Mid(lastSlash);
+            if (tmpstr.Find(TEXT("aegisub")) >= 0)
+            {
+                CString resPath = GetStr(buff).Trim();
+                if (resPath.GetLength() > 0 && resPath[resPath.GetLength() - 1] != TEXT('\\'))
+                    resPath += '\\';
+                ret.m_resPath = resPath;
+            }
+        }
 #endif
     }
 
@@ -2027,26 +2028,26 @@ CSimpleTextSubtitle::~CSimpleTextSubtitle()
 /*
 CSimpleTextSubtitle::CSimpleTextSubtitle(CSimpleTextSubtitle& sts)
 {
-	*this = sts;
+    *this = sts;
 }
 
 CSimpleTextSubtitle& CSimpleTextSubtitle::operator = (CSimpleTextSubtitle& sts)
 {
-	Empty();
+    Empty();
 
-	m_name = sts.m_name;
-	m_mode = sts.m_mode;
-	m_dstScreenSize = sts.m_dstScreenSize;
-	m_defaultWrapStyle = sts.m_defaultWrapStyle;
-	m_collisions = sts.m_collisions;
-	m_fScaledBAS = sts.m_fScaledBAS;
-	m_fSSA = sts.m_fSSA;
-	m_fUsingAutoGeneratedDefaultStyle = sts.m_fUsingAutoGeneratedDefaultStyle;
-	CopyStyles(sts.m_styles);
-	m_segments.Copy(sts.m_segments);
-	Copy(sts);
+    m_name = sts.m_name;
+    m_mode = sts.m_mode;
+    m_dstScreenSize = sts.m_dstScreenSize;
+    m_defaultWrapStyle = sts.m_defaultWrapStyle;
+    m_collisions = sts.m_collisions;
+    m_fScaledBAS = sts.m_fScaledBAS;
+    m_fSSA = sts.m_fSSA;
+    m_fUsingAutoGeneratedDefaultStyle = sts.m_fUsingAutoGeneratedDefaultStyle;
+    CopyStyles(sts.m_styles);
+    m_segments.Copy(sts.m_segments);
+    Copy(sts);
 
-	return(*this);
+    return(*this);
 }
 */
 
@@ -2717,19 +2718,19 @@ void CSimpleTextSubtitle::CreateSegments()
 
     OnChanged();
     /*
-    	for(i = 0, j = m_segments.GetCount(); i < j; i++)
-    	{
-    		STSSegment& stss = m_segments[i];
+    for(i = 0, j = m_segments.GetCount(); i < j; i++)
+    {
+        STSSegment& stss = m_segments[i];
 
-    		TRACE(_T("%d - %d"), stss.start, stss.end);
+        TRACE(_T("%d - %d"), stss.start, stss.end);
 
-    		for(ptrdiff_t k = 0, l = stss.subs.GetCount(); k < l; k++)
-    		{
-    			TRACE(_T(", %d"), stss.subs[k]);
-    		}
+        for(ptrdiff_t k = 0, l = stss.subs.GetCount(); k < l; k++)
+        {
+            TRACE(_T(", %d"), stss.subs[k]);
+        }
 
-    		TRACE(_T("\n"));
-    	}
+        TRACE(_T("\n"));
+    }
     */
 }
 

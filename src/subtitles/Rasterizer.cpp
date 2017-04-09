@@ -1848,20 +1848,24 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
     // Every remaining line in the bitmap to be rendered...
     // Basic case of no complex clipping mask
 #ifdef _VSMOD // patch m004. gradient colors
-    if(((typ == 0) && ((mod_grad.mode[0] == 0) && (mod_grad.mode[1] == 0))) || (mod_grad.mode[typ] == 0))
-// No gradient
+    if (
+        ((typ == 0) && ((mod_grad.mode[0] == 0) && (mod_grad.mode[1] == 0)))
+        || ((typ != 0) && (mod_grad.mode[typ] == 0))
+        )
+        // No gradient
+    {
 #endif
-        if(!pAlphaMask)
+        if (!pAlphaMask)
         {
             // If the first colour switching coordinate is at "infinite" we're
             // never switching and can use some simpler code.
             // ??? Is this optimisation really worth the extra readability issues it adds?
-            if(switchpts[1] == 0xFFFFFFFF)
+            if (switchpts[1] == 0xFFFFFFFF)
             {
                 // fBody is true if we're rendering a fill or a shadow.
-                if(fBody)
+                if (fBody)
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_noAlpha_spFF_Body_sse2(rnfo);
                     }
@@ -1873,7 +1877,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 // Not painting body, ie. painting border without fill in it
                 else
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_noAlpha_spFF_noBody_sse2(rnfo);
                     }
@@ -1889,9 +1893,9 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 // switchpts plays an important rule here
                 //const long *sw = switchpts;
 
-                if(fBody)
+                if (fBody)
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_noAlpha_sp_Body_sse2(rnfo);
                     }
@@ -1903,7 +1907,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 // Not body
                 else
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_noAlpha_sp_noBody_sse2(rnfo);
                     }
@@ -1914,14 +1918,14 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 }
             }
         }
-    // Here we *do* have an alpha mask
+        // Here we *do* have an alpha mask
         else
         {
-            if(switchpts[1] == 0xFFFFFFFF)
+            if (switchpts[1] == 0xFFFFFFFF)
             {
-                if(fBody)
+                if (fBody)
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_Alpha_spFF_Body_sse2(rnfo);
                     }
@@ -1932,7 +1936,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 }
                 else
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_Alpha_spFF_noBody_sse2(rnfo);
                     }
@@ -1946,9 +1950,9 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
             {
                 //const long *sw = switchpts;
 
-                if(fBody)
+                if (fBody)
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_Alpha_sp_Body_sse2(rnfo);
                     }
@@ -1959,7 +1963,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
                 }
                 else
                 {
-                    if(fSSE2)
+                    if (fSSE2)
                     {
                         Draw_Alpha_sp_noBody_sse2(rnfo);
                     }
@@ -1971,6 +1975,7 @@ CRect Rasterizer::Draw(SubPicDesc& spd, CRect& clipRect, byte* pAlphaMask, int x
             }
         }
 #ifdef _VSMOD // patch m004. gradient colors
+    }
     else
     {
         if(!pAlphaMask)
@@ -2168,22 +2173,22 @@ byte MOD_MOVEVC::GetAlphaValue(int wx, int wy)
         return alphamask[wx+((hfull-wy)*spd.cx)];
     }
 
-	int xInCanvas = wx - pos.x + curpos.x;
-	int yInCanvas = -pos.y + (hfull - wy) + curpos.y;
+    int xInCanvas = wx - pos.x + curpos.x;
+    int yInCanvas = -pos.y + (hfull - wy) + curpos.y;
 
-	//check if the point is in canvas, in case of crash
-	if (xInCanvas < 0 || xInCanvas >= spd.cx)
-		alpham = 0;
-	else if (yInCanvas < 0 || yInCanvas >= spd.cy)
-		alpham = 0;
-	else
-	{
-		if ((wx - pos.x) < -curpos.x + 1) alpham = 0;
-		else if ((wx - pos.x) > spd.cx - 1) alpham = 0; //canvas.cx
-		else if ((hfull - wy - pos.y) < -curpos.y + 1) alpham = 0;
-		else if ((hfull - wy - pos.y) > spd.cy - 1) alpham = 0;
-		else alpham = alphamask[wx - pos.x - pos.y*spd.cx + ((hfull - wy)*spd.cx)];
-	}
+    //check if the point is in canvas, in case of crash
+    if (xInCanvas < 0 || xInCanvas >= spd.cx)
+        alpham = 0;
+    else if (yInCanvas < 0 || yInCanvas >= spd.cy)
+        alpham = 0;
+    else
+    {
+        if ((wx - pos.x) < -curpos.x + 1) alpham = 0;
+        else if ((wx - pos.x) > spd.cx - 1) alpham = 0; //canvas.cx
+        else if ((hfull - wy - pos.y) < -curpos.y + 1) alpham = 0;
+        else if ((hfull - wy - pos.y) > spd.cy - 1) alpham = 0;
+        else alpham = alphamask[wx - pos.x - pos.y*spd.cx + ((hfull - wy)*spd.cx)];
+    }
 
     return alpham;
 }

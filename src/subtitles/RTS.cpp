@@ -2054,9 +2054,7 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                 for(int j = 0; j < 4; j++)
                 {
                     style.mod_grad.color[i][j] = !p.IsEmpty()
-                                                 ? ((int)c & 0xff
-                                                    | (int)c & 0xff00
-                                                    | (int)c & 0xff0000)
+                                                 ? revcolor(c & 0xffffff)
                                                  : org.mod_grad.color[i][j];
                 }
             }
@@ -2186,15 +2184,12 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                                                     | ((int)CalcAnimation((c & 0xff) << 16, style.mod_grad.color[i][j] & 0xff0000, fAnimate)) & 0xff0000)
                                                  : org.mod_grad.color[i][j];
                 }
-                if(style.mod_grad.mode[i] == 0)
-                {
-                    for(int j = 0; j < 4; j++)
-                    {
-                        style.mod_grad.alpha[i][j] = style.alpha[i];
-                    }
-                }
+
                 //if (!fAnimate)
                 style.mod_grad.mode[i] = 1;
+
+                if (i == 0 || i == 1)
+                    style.mod_grad.mode[0] = style.mod_grad.mode[1] = 1;
             }
         }
         else if(cmd == L"1va" || cmd == L"2va" || cmd == L"3va" || cmd == L"4va")
@@ -2214,11 +2209,14 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                 {
                     for(int j = 0; j < 4; j++)
                     {
-                        style.mod_grad.color[i][j] = style.colors[i];
+                        style.mod_grad.color[i][j] = revcolor(style.colors[i]);
                     }
                 }
                 //if (!fAnimate)
                 style.mod_grad.mode[i] = 1;
+
+                if (i == 0 || i == 1)
+                    style.mod_grad.mode[0] = style.mod_grad.mode[1] = 1;
             }
         }
 #endif
@@ -3195,12 +3193,16 @@ CSubtitle* CRenderedTextSubtitle::GetSubtitle(int entry)
     m_polygonBaselineOffset = 0;
 #ifdef _VSMOD // patch m004. gradient colors
     // allow init gradient without \$vc \$va
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 4; j++)
+    for (int i = 0; i < 4; i++)
+    {
+        COLORREF revClr = revcolor(stss.colors[i]);
+
+        for (int j = 0; j < 4; j++)
         {
             stss.mod_grad.alpha[i][j] = stss.alpha[i];
-            stss.mod_grad.color[i][j] = stss.colors[i];
+            stss.mod_grad.color[i][j] = revClr;
         }
+    }
 #endif
     ParseEffect(sub, GetAt(entry).effect);
 
