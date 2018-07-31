@@ -31,6 +31,8 @@
 #include "..\SubPic\MemSubPic.h"
 #include "vfr.h"
 
+#include <memory>
+
 //
 // Generic interface
 //
@@ -881,12 +883,17 @@ namespace VapourSynth {
 	class VSFFrameBuf
 	{
 	protected:
-		VSFFrameBuf() {}
+		VSFFrameBuf()
+            : subpic{}
+            , subpic2{}
+        {
+        }
 
 	public:
 		virtual ~VSFFrameBuf() {}
 		virtual void WriteTo(VSFrameRef* frame) = 0;
 		SubPicDesc subpic;
+        SubPicDesc subpic2;
 
 	private:
 		VSFFrameBuf(const VSFFrameBuf*) = delete;
@@ -1067,6 +1074,19 @@ namespace VapourSynth {
 			subpic.bitsV = BufDatas[2];
 			subpic.bpp = 8;
 			subpic.type = MSP_YV12;
+
+            if (BITDEPTH > 8)
+            {
+                subpic2.w = d->vi->width;
+                subpic2.h = d->vi->height;
+                subpic2.pitch = BufStrides[0];
+                subpic2.pitchUV = BufStrides[1];
+                subpic2.bits = BufDatas2[0];
+                subpic2.bitsU = BufDatas2[1];
+                subpic2.bitsV = BufDatas2[2];
+                subpic2.bpp = 8;
+                subpic2.type = MSP_YV12;
+            }
 		}
 
 		void WriteTo(VSFrameRef* frame) override
@@ -1197,20 +1217,20 @@ namespace VapourSynth {
             const VSFrameRef * src = vsapi->getFrameFilter(n, d->node, frameCtx);
             VSFrameRef * dst = vsapi->copyFrame(src, core);
 
-			VSFFrameBuf* frameBuf = 0;
+			std::unique_ptr<VSFFrameBuf> frameBuf;
 
 			if (d->vi->format->colorFamily == cmRGB)
 			{
-				frameBuf = new VSFRGBBuf(vsapi, core, d, src);
+				frameBuf.reset(new VSFRGBBuf(vsapi, core, d, src));
 			}
 			else if (d->vi->format->colorFamily == cmYUV)
 			{
 				if (d->vi->format->id == pfYUV420P8)
-					frameBuf = new VSFYUVBuf<8>(vsapi, core, d, src);
+					frameBuf.reset(new VSFYUVBuf<8>(vsapi, core, d, src));
 				else if (d->vi->format->id == pfYUV420P10)
-					frameBuf = new VSFYUVBuf<10>(vsapi, core, d, src);
+					frameBuf.reset(new VSFYUVBuf<10>(vsapi, core, d, src));
 				else if (d->vi->format->id == pfYUV420P16)
-					frameBuf = new VSFYUVBuf<16>(vsapi, core, d, src);
+					frameBuf.reset(new VSFYUVBuf<16>(vsapi, core, d, src));
 			}
 
 			if (frameBuf)
@@ -1221,14 +1241,20 @@ namespace VapourSynth {
 				else
 					timestamp = static_cast<REFERENCE_TIME>(10000000 * d->vfr->TimeStampFromFrameNumber(n));
 
-				if (d->textsub)
-					d->textsub->Render(frameBuf->subpic, timestamp, d->fps);
-				else
-					d->vobsub->Render(frameBuf->subpic, timestamp, d->fps);
+                if (d->textsub)
+                {
+                    d->textsub->Render(frameBuf->subpic, timestamp, d->fps);
+                    if (frameBuf->subpic2.bits)
+                        d->textsub->Render(frameBuf->subpic2, timestamp, d->fps);
+                }
+                else
+                {
+                    d->vobsub->Render(frameBuf->subpic, timestamp, d->fps);
+                    if (frameBuf->subpic2.bits)
+                        d->vobsub->Render(frameBuf->subpic2, timestamp, d->fps);
+                }
 
 				frameBuf->WriteTo(dst);
-				
-				delete frameBuf;
 			}
 
 			vsapi->freeFrame(src);
