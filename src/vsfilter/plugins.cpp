@@ -873,6 +873,7 @@ namespace VapourSynth {
         VFRTranslator * vfr;
         CTextSubVapourSynthFilter * textsub;
         CVobSubVapourSynthFilter * vobsub;
+        bool accurate16bit;
     };
 
     static void VS_CC vsfilterInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi) {
@@ -1244,13 +1245,13 @@ namespace VapourSynth {
                 if (d->textsub)
                 {
                     d->textsub->Render(frameBuf->subpic, timestamp, d->fps);
-                    if (frameBuf->subpic2.bits)
+                    if (d->accurate16bit && frameBuf->subpic2.bits)
                         d->textsub->Render(frameBuf->subpic2, timestamp, d->fps);
                 }
                 else
                 {
                     d->vobsub->Render(frameBuf->subpic, timestamp, d->fps);
-                    if (frameBuf->subpic2.bits)
+                    if (d->accurate16bit && frameBuf->subpic2.bits)
                         d->vobsub->Render(frameBuf->subpic2, timestamp, d->fps);
                 }
 
@@ -1325,6 +1326,9 @@ namespace VapourSynth {
         }
 
 		VSFilterData * data = new VSFilterData{ ::std::move(d) };
+        data->accurate16bit = vsapi->propGetInt(in, "vfr", 0, &err) != 0;
+        if (err)
+            data->accurate16bit = false;
 
         vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallelRequests, 0, data, core);
     }
@@ -1339,11 +1343,13 @@ namespace VapourSynth {
                      "file:data;"
                      "charset:int:opt;"
                      "fps:float:opt;"
-                     "vfr:data:opt;",
+                     "vfr:data:opt;"
+                     "accurate:int:opt;",
                      vsfilterCreate, const_cast<char *>("TextSubMod"), plugin);
         registerFunc("VobSub",
                      "clip:clip;"
-                     "file:data;",
+                     "file:data;"
+                     "accurate:int:opt;",
                      vsfilterCreate, const_cast<char *>("VobSub"), plugin);
     }
 }
