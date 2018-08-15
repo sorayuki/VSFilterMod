@@ -24,6 +24,7 @@
 #include "stdafx.h"
 #include <afxdlgs.h>
 #include <atlpath.h>
+#include <atlconv.h>
 #include "resource.h"
 #include "..\subtitles\VobSubFile.h"
 #include "..\subtitles\RTS.h"
@@ -1277,7 +1278,8 @@ namespace VapourSynth {
     }
 
     static void VS_CC vsfilterCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi) {
-        VSFilterData d {};
+        std::unique_ptr<VSFilterData> ud(new VSFilterData{});
+        VSFilterData& d = *ud;
         int err;
 
 		const ::std::string filterName{ static_cast<const char *>(userData) };
@@ -1292,7 +1294,16 @@ namespace VapourSynth {
             return;
         }
 
+        std::string strfile;
         const char * file = vsapi->propGetData(in, "file", 0, nullptr);
+        if (!file) file = "";
+
+        CA2WEX<> utf8file(file, CP_UTF8);
+        if (PathFileExistsW(utf8file))
+        {
+            strfile = CW2AEX<>(utf8file, CP_ACP);
+            file = strfile.c_str();
+        }
 
         int charset = int64ToIntS(vsapi->propGetInt(in, "charset", 0, &err));
         if (err)
@@ -1325,12 +1336,11 @@ namespace VapourSynth {
             return;
         }
 
-		VSFilterData * data = new VSFilterData{ ::std::move(d) };
-        data->accurate16bit = vsapi->propGetInt(in, "vfr", 0, &err) != 0;
+        d.accurate16bit = vsapi->propGetInt(in, "accurate", 0, &err) != 0;
         if (err)
-            data->accurate16bit = false;
+            d.accurate16bit = false;
 
-        vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallelRequests, 0, data, core);
+        vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallelRequests, 0, ud.release(), core);
     }
 
     //////////////////////////////////////////
