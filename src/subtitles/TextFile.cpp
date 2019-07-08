@@ -20,6 +20,7 @@
  */
 
 #include "stdafx.h"
+#include <cstdint>
 #include <atlbase.h>
 #include <afxinet.h>
 #include "TextFile.h"
@@ -223,6 +224,22 @@ void CTextFile::WriteString(LPCWSTR lpsz/*CStringW str*/)
                 Write((BYTE*)&c + 1, 1);
                 Write(&c, 1);
             }
+            else if ((c & 0xfc00) == 0xd800 && i + 1 < str.GetLength() && (str[i + 1] & 0xfc00) == 0xdc00)
+            {
+                // surrogate pair
+                uint32_t utf32 = c & 0x03ff;
+                c = (WORD)str[i++];
+                utf32 = (utf32 << 10) | (c & 0x03ff);
+                utf32 += 0x10000;
+                c = 0xf0 | ((utf32 >> 18) & 0x07);
+                Write(&c, 1);
+                c = 0x80 | ((utf32 >> 12) & 0x3f);
+                Write(&c, 1);
+                c = 0x80 | ((utf32 >> 6) & 0x3f);
+                Write(&c, 1);
+                c = 0x80 | (utf32 & 0x3f);
+                Write(&c, 1);
+            }
             else if(0x800 <= c && c < 0xFFFF) // 1110xxxx 10xxxxxx 10xxxxxx
             {
                 c = 0xe08080 | ((c << 4) & 0x0f0000) | ((c << 2) & 0x3f00) | (c & 0x003f);
@@ -294,6 +311,12 @@ BOOL CTextFile::ReadString(CStringA& str)
                 if(Read(&b, sizeof(b)) != sizeof(b)) break;
                 if(Read(&b, sizeof(b)) != sizeof(b)) break;
             }
+            else if ((b & 0xf8) == 0xf0) // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+            {
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+            }
             if(c == '\r') continue;
             if(c == '\n') break;
             str += c;
@@ -360,28 +383,59 @@ BOOL CTextFile::ReadString(CStringW& str)
         while(Read(&b, sizeof(b)) == sizeof(b))
         {
             fEOF = false;
-            WCHAR c = '?';
+            WCHAR c;
             if(!(b & 0x80)) // 0xxxxxxx
             {
                 c = b & 0x7f;
+                if(c == '\r') continue;
+                if(c == '\n') break;
+                str += c;
             }
             else if((b & 0xe0) == 0xc0) // 110xxxxx 10xxxxxx
             {
                 c = (b & 0x1f) << 6;
                 if(Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
                 c |= (b & 0x3f);
+                str += c;
             }
             else if((b & 0xf0) == 0xe0) // 1110xxxx 10xxxxxx 10xxxxxx
             {
                 c = (b & 0x0f) << 12;
                 if(Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
                 c |= (b & 0x3f) << 6;
                 if(Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
                 c |= (b & 0x3f);
+                str += c;
             }
-            if(c == '\r') continue;
-            if(c == '\n') break;
-            str += c;
+            else if ((b & 0xf8) == 0xf0) // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+            {
+                uint32_t utf32;
+                utf32 = (b & 0x07) << 18;
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
+                utf32 |= (b & 0x3f) << 12;
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
+                utf32 |= (b & 0x3f) << 6;
+                if (Read(&b, sizeof(b)) != sizeof(b)) break;
+                if ((b & 0xc0) != 0x80) break;
+                utf32 |= (b & 0x3f);
+                c = utf32;
+                if (c == utf32) str += c;
+                else if (sizeof c == sizeof uint16_t) {
+                    // Use UTF-16 encoding as fallback
+                    utf32 -= 0x10000;
+                    c = 0xd800 | ((utf32 >> 10) & 0x03ff);
+                    str += c;
+                    c = 0xdc00 | (utf32 & 0x03ff);
+                    str += c;
+                }
+                else str += WCHAR('?');
+            }
+            else str += WCHAR('?');
         }
     }
     else if(m_encoding == LE16)
