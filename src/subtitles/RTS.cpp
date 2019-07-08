@@ -20,6 +20,7 @@
  */
 
 #include "stdafx.h"
+#include <cmath>
 #include <math.h>
 #include <time.h>
 #include "RTS.h"
