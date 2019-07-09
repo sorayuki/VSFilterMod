@@ -69,8 +69,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,92,0
- PRODUCTVERSION 1,1,92,0
+ FILEVERSION 2,5,2,1
+ PRODUCTVERSION 2,5,2,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -88,12 +88,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/vsfiltermod/"
             VALUE "CompanyName", "MPC-HC Team"
             VALUE "FileDescription", "VobSub & TextSubMod filter for DirectShow/VirtualDub/Avisynth/VapourSynth"
-            VALUE "FileVersion", "1.1.92.0"
+            VALUE "FileVersion", "2.5.2.1"
             VALUE "InternalName", "VSFilter"
-            VALUE "LegalCopyright", "Copyright (C) 2001-2010 see AUTHORS file"
+            VALUE "LegalCopyright", "Copyright (C) 2001-2019 see AUTHORS file"
             VALUE "OriginalFilename", "VSFilterMod.dll"
             VALUE "ProductName", "VSFilterMod"
-            VALUE "ProductVersion", "1.1.92.0"
+            VALUE "ProductVersion", "2.5.2.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -344,6 +344,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "res\\Icon_147m.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

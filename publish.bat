@@ -1,14 +1,14 @@
-if "%VS120COMNTOOLS%"=="" goto end
+rem if "%VS160COMNTOOLS%"=="" goto end
 
-call "%VS120COMNTOOLS%vsdevcmd.bat"
+rem call "%VS160COMNTOOLS%vsdevcmd.bat"
 cd /d "%~dp0"
 
 echo y | rd /s tmp
 
-msbuild /p:PlatformToolset=v120 /m /p:"Configuration=Release (MOD)" /p:Platform=Win32
+msbuild /p:WindowsTargetPlatformVersion=10.0 /p:PlatformToolset=v142 /m /p:"Configuration=Release (MOD)" /p:Platform=Win32
 if errorlevel 1 goto end
 
-msbuild /p:PlatformToolset=v120 /m /p:"Configuration=Release (MOD)" /p:Platform=x64
+msbuild /p:WindowsTargetPlatformVersion=10.0 /p:PlatformToolset=v142 /m /p:"Configuration=Release (MOD)" /p:Platform=x64
 if errorlevel 1 goto end
 
 mkdir tmp
@@ -23,4 +23,4 @@ cd tmp
 ..\7zr.exe a -r -mx=9 -myx=9 ..\VSFilterMod_bin.7z .
 cd ..
 
-end:
+:end
