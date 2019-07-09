@@ -112,6 +112,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Winmm.lib;strmiids.lib;vfw32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VSFilterMod.def</ModuleDefinitionFile>
+      <AdditionalOptions>/MERGE:_RDATA=.rdata /MERGE:_rdata=.rdata /MERGE:_TEXT64=.text </AdditionalOptions>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_AFXDLL;NDEBUG;AFX_RESOURCE_DLL;AFX_TARG_ENU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -137,6 +138,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Winmm.lib;strmiids.lib;vfw32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VSFilterMod.def</ModuleDefinitionFile>
+      <AdditionalOptions>/MERGE:_RDATA=.rdata /MERGE:_rdata=.rdata /MERGE:_TEXT64=.text </AdditionalOptions>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_AFXDLL;NDEBUG;AFX_RESOURCE_DLL;AFX_TARG_ENU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -159,6 +161,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Winmm.lib;strmiids.lib;vfw32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VSFilterMod64.def</ModuleDefinitionFile>
+      <AdditionalOptions>/MERGE:_RDATA=.rdata /MERGE:_rdata=.rdata /MERGE:_TEXT64=.text </AdditionalOptions>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_AFXDLL;NDEBUG;AFX_RESOURCE_DLL;AFX_TARG_ENU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -180,6 +183,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Winmm.lib;strmiids.lib;vfw32.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>VSFilterMod64.def</ModuleDefinitionFile>
+      <AdditionalOptions>/MERGE:_RDATA=.rdata /MERGE:_rdata=.rdata /MERGE:_TEXT64=.text </AdditionalOptions>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_AFXDLL;NDEBUG;AFX_RESOURCE_DLL;AFX_TARG_ENU;%(PreprocessorDefinitions)</PreprocessorDefinitions>
