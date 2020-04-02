@@ -165,6 +165,8 @@ void CWord::Transform(CPoint org)
     double yrnd = m_style.mod_rand.Y * 100;
     double zrnd = m_style.mod_rand.Z * 100;
 
+    bool ortho = m_style.mod_ortho;
+
     srand(m_style.mod_rand.Seed);
     // CPUID from VDub
     bool fSSE2 = !!(g_cpuid.m_flags & CCpuID::sse2);
@@ -383,10 +385,16 @@ void CWord::Transform(CPoint org)
             __zz = _mm_mul_ps(__pointz, __say);
             __tmpx = __pointx;
             __pointx = _mm_add_ps(__xx, __zz);
-            __xx = _mm_mul_ps(__tmpx, __say);
-            __zz = _mm_mul_ps(__pointz, __cay);
-            __pointz = _mm_sub_ps(__xx, __zz);
-
+            if (ortho)
+            {// vpatch v001. Orthogonal 2D projection
+                __pointz = _mm_set_ps1(0);
+            }
+            else
+            {
+                __xx = _mm_mul_ps(__tmpx, __say);
+                __zz = _mm_mul_ps(__pointz, __cay);
+                __pointz = _mm_sub_ps(__xx, __zz);
+            }
             __zz = _mm_set_ps1(-19000);
             __pointz = _mm_max_ps(__pointz, __zz);
 
@@ -399,7 +407,7 @@ void CWord::Transform(CPoint org)
 
             __pointy = _mm_mul_ps(__pointy, __20000);
             __pointy = _mm_mul_ps(__pointy, __zz);
-
+            
             __pointx = _mm_add_ps(__pointx, __xorg);
             __pointy = _mm_add_ps(__pointy, __yorg);
 
@@ -499,8 +507,12 @@ void CWord::Transform(CPoint org)
 
             xx = x * cay + z * say;
             yy = y;
-            zz = x * say - z * cay;
-
+            if (ortho) { // vpatch v001. Orthogonal 2D projection
+                zz = 0;
+            }
+            else {
+                zz = x * say - z * cay;
+            }
             zz = max(zz, -19000);
 
             x = (xx * 20000) / (zz + 20000);
@@ -2029,6 +2041,8 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
 #ifdef _VSMOD // patch m002. Z-coord
         else if(!cmd.Find(L"z"))
             params.Add(cmd.Mid(1)), cmd = cmd.Left(1);
+        else if(!cmd.Find(L"ortho")) // vpatch v001. ortho
+            params.Add(cmd.Mid(5)), cmd = cmd.Left(5);
 #endif
         else
             nUnrecognizedTags++;
@@ -2965,6 +2979,13 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
             double dst = wcstod(p, NULL) * 80;
             double nx = CalcAnimation(dst, style.mod_z, fAnimate);
             style.mod_z = !p.IsEmpty() ? nx : org.mod_z;
+        }
+        else if (cmd == L"ortho")// vpatch v001. Orthogonal projection
+        {
+            int n = wcstol(p, NULL, 10);
+            style.mod_ortho = !p.IsEmpty()
+                ? (n == 0 ? false : n == 1 ? true : org.mod_ortho)
+                : org.mod_ortho;
         }
 #endif
     }

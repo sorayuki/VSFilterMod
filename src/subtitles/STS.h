@@ -177,6 +177,8 @@ public:
     MOD_DISTORT mod_distort;
     // patch m011. jitter
     MOD_JITTER mod_jitter;
+    // vpatch v001. Orthogonal 2D projection
+    bool mod_ortho;
 #endif
 
     STSStyle();
