@@ -373,15 +373,17 @@ void CWord::Transform(CPoint org)
 
             __m128 __zz = _mm_mul_ps(__pointz, __sax);
             __yy = _mm_mul_ps(__pointy, __cax);
-            __pointy = _mm_sub_ps(__yy, __zz);
+            __tmpy = __pointy;
+            __pointy = _mm_add_ps(__yy, __zz);
             __zz = _mm_mul_ps(__pointz, __cax);
-            __yy = _mm_mul_ps(__pointy, __sax);
-            __pointz = _mm_add_ps(__zz, __yy);
+            __yy = _mm_mul_ps(__tmpy, __sax);
+            __pointz = _mm_sub_ps(__yy, __zz);
 
             __xx = _mm_mul_ps(__pointx, __cay);
             __zz = _mm_mul_ps(__pointz, __say);
+            __tmpx = __pointx;
             __pointx = _mm_add_ps(__xx, __zz);
-            __xx = _mm_mul_ps(__pointx, __say);
+            __xx = _mm_mul_ps(__tmpx, __say);
             __zz = _mm_mul_ps(__pointz, __cay);
             __pointz = _mm_sub_ps(__xx, __zz);
 
@@ -492,8 +494,8 @@ void CWord::Transform(CPoint org)
             zz = z;
 
             x = xx;
-            y = yy * cax - zz * sax;
-            z = yy * sax + zz * cax;
+            y = yy * cax + zz * sax;
+            z = yy * sax - zz * cax;
 
             xx = x * cay + z * say;
             yy = y;
