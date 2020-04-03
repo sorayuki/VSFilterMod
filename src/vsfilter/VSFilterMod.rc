@@ -88,12 +88,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/vsfiltermod/"
             VALUE "CompanyName", "MPC-HC Team"
             VALUE "FileDescription", "VobSub & TextSubMod filter for DirectShow/VirtualDub/Avisynth/VapourSynth"
-            VALUE "FileVersion", "2.5.2.1"
+            VALUE "FileVersion", "2.5.2.2"
             VALUE "InternalName", "VSFilter"
-            VALUE "LegalCopyright", "Copyright (C) 2001-2019 see AUTHORS file"
+            VALUE "LegalCopyright", "Copyright (C) 2001-2020 see AUTHORS file"
             VALUE "OriginalFilename", "VSFilterMod.dll"
             VALUE "ProductName", "VSFilterMod"
-            VALUE "ProductVersion", "2.5.2.1"
+            VALUE "ProductVersion", "2.5.2.2"
         END
     END
     BLOCK "VarFileInfo"

@@ -5,10 +5,10 @@ cd /d "%~dp0"
 
 echo y | rd /s tmp
 
-msbuild /p:WindowsTargetPlatformVersion=10.0 /p:PlatformToolset=v142 /m /p:"Configuration=Release (MOD)" /p:Platform=Win32
+msbuild /t:Rebuild /p:WindowsTargetPlatformVersion=10.0.18362.0 /p:PlatformToolset=v141 /m /p:"Configuration=Release (MOD)" /p:Platform=Win32
 if errorlevel 1 goto end
 
-msbuild /p:WindowsTargetPlatformVersion=10.0 /p:PlatformToolset=v142 /m /p:"Configuration=Release (MOD)" /p:Platform=x64
+msbuild /t:Rebuild /p:WindowsTargetPlatformVersion=10.0.18362.0 /p:PlatformToolset=v141 /m /p:"Configuration=Release (MOD)" /p:Platform=x64
 if errorlevel 1 goto end
 
 mkdir tmp
