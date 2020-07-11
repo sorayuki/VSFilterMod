@@ -1549,6 +1549,46 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
             buff.MakeLower();
             ret.m_fScaledBAS = buff.Find(L"yes") >= 0;
         }
+        else if (entry == L"ycbcr matrix")
+        {
+            buff = GetStr(buff);
+            buff.MakeLower();
+            if (buff.Left(4) == L"none")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_AUTO;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_AUTO;
+            }
+            else if (buff.Left(6) == L"tv.601")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT601;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_TV;
+            }
+            else if (buff.Left(6) == L"tv.709")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT709;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_TV;
+            }
+            else if (buff.Left(7) == L"tv.2020")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT2020;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_TV;
+            }
+            else if (buff.Left(6) == L"pc.601")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT601;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_PC;
+            }
+            else if (buff.Left(6) == L"pc.709")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT709;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_PC;
+            }
+            else if (buff.Left(7) == L"pc.2020")
+            {
+                ret.m_eYCbCrMatrix = CSimpleTextSubtitle::YCbCrMatrix_BT2020;
+                ret.m_eYCbCrRange = CSimpleTextSubtitle::YCbCrRange_PC;
+            }
+        }
         else if(entry == L"[v4 styles]")
         {
             fRet = true;

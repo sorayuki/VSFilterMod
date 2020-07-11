@@ -53,6 +53,9 @@ protected:
     CComPtr<ISubPicProvider> m_pSubPicProvider;
     DWORD_PTR m_SubPicProviderId;
 
+    CSimpleTextSubtitle::YCbCrMatrix m_script_selected_yuv;
+    CSimpleTextSubtitle::YCbCrRange m_script_selected_range;
+
 public:
     CFilter() : m_fps(-1), m_SubPicProviderId(0)
     {
@@ -83,7 +86,7 @@ public:
 
         if(!m_pSubPicQueue)
         {
-            CComPtr<ISubPicAllocator> pAllocator = new CMemSubPicAllocator(dst.type, size);
+            CComPtr<ISubPicAllocator> pAllocator = new CMemSubPicAllocator(dst.type, size, m_script_selected_yuv, m_script_selected_range);
 
             HRESULT hr;
             if(!(m_pSubPicQueue = new CSubPicQueueNoThread(pAllocator, &hr)) || FAILED(hr))
@@ -250,6 +253,9 @@ public:
                 m_pSubPicProvider = (ISubPicProvider*)rts;
                 if(rts->Open(CString(fn), CharSet)) SetFileName(fn);
                 else m_pSubPicProvider = NULL;
+
+                m_script_selected_yuv = rts->m_eYCbCrMatrix;
+                m_script_selected_range = rts->m_eYCbCrRange;
             }
         }
 
