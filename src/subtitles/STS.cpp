@@ -2053,6 +2053,8 @@ CSimpleTextSubtitle::CSimpleTextSubtitle()
     m_lcid = 0;
     m_ePARCompensationType = EPCTDisabled;
     m_dPARCompensation = 1.0;
+    m_eYCbCrMatrix = YCbCrMatrix_AUTO;
+    m_eYCbCrRange = YCbCrRange_AUTO;
 
 #ifdef _VSMOD // indexing
 #ifdef INDEXING
