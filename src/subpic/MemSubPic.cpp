@@ -23,24 +23,53 @@
 #include "MemSubPic.h"
 
 // color conv
+#define DEFINE_YUV_MATRIX(Kr,Kg,Kb) {                        \
+    {   Kr            ,  Kg           ,   Kb            , 0},\
+    {  -Kr /((1-Kb)*2), -Kg/((1-Kb)*2),(1-Kb)/((1-Kb)*2), 0},\
+    {(1-Kr)/((1-Kr)*2), -Kg/((1-Kr)*2),  -Kb /((1-Kr)*2), 0} \
+}
 
+//YUV to RGB: INV stand for inverse
+#define DEFINE_YUV_MATRIX_INV(Kr,Kg,Kb) {       \
+    {   1,  0             ,  2*(1-Kr)      , 0},\
+    {   1, -2*(1-Kb)*Kb/Kg, -2*(1-Kr)*Kr/Kg, 0},\
+    {   1,  2*(1-Kb)      ,  0             , 0} \
+}
+
+const float MATRIX_BT_601[3][4] = DEFINE_YUV_MATRIX(0.299f, 0.587f, 0.114f);
+const float MATRIX_BT_601_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.299f, 0.587f, 0.114f);
+const float MATRIX_BT_709[3][4] = DEFINE_YUV_MATRIX(0.2126f, 0.7152f, 0.0722f);
+const float MATRIX_BT_709_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.2126f, 0.7152f, 0.0722f);
+const float MATRIX_BT_2020[3][4] = DEFINE_YUV_MATRIX(0.2627f, 0.678f, 0.0593f);
+const float MATRIX_BT_2020_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.2627f, 0.678f, 0.0593f);
+const float YUV_PC[3][4] = {
+    {255,   0,   0,   0},
+    {  0, 255,   0, 128},
+    {  0,   0, 255, 128}
+};
+const float YUV_TV[3][4] = {
+    {219,   0,   0,  16},
+    {  0, 224,   0, 128},
+    {  0,   0, 224, 128}
+};
 unsigned char Clip_base[256*3];
 unsigned char* Clip = Clip_base + 256;
 
-const int c2y_cyb = int(0.114 * 219 / 255 * 65536 + 0.5);
-const int c2y_cyg = int(0.587 * 219 / 255 * 65536 + 0.5);
-const int c2y_cyr = int(0.299 * 219 / 255 * 65536 + 0.5);
-const int c2y_cu = int(1.0 / 2.018 * 1024 + 0.5);
-const int c2y_cv = int(1.0 / 1.596 * 1024 + 0.5);
+int c2y_cyb;
+int c2y_cyg;
+int c2y_cyr;
+int c2y_cu;
+int c2y_cv;
+
+int y2c_cbu;
+int y2c_cgu;
+int y2c_cgv;
+int y2c_crv;
 
 int c2y_yb[256];
 int c2y_yg[256];
 int c2y_yr[256];
 
-const int y2c_cbu = int(2.018 * 65536 + 0.5);
-const int y2c_cgu = int(0.391 * 65536 + 0.5);
-const int y2c_cgv = int(0.813 * 65536 + 0.5);
-const int y2c_crv = int(1.596 * 65536 + 0.5);
 int y2c_bu[256];
 int y2c_gu[256];
 int y2c_gv[256];
@@ -50,10 +79,36 @@ const int cy_cy = int(255.0 / 219.0 * 65536 + 0.5);
 const int cy_cy2 = int(255.0 / 219.0 * 32768 + 0.5);
 
 bool fColorConvInitOK = false;
-
-void ColorConvInit()
+const float(*MATRIX)[4] = MATRIX_BT_601;
+const float(*MATRIX_INV)[4] = MATRIX_BT_601_INV;
+void ColorConvInitOther(int inYCbCrMatrix, int inYCbCrRange)
 {
     if(fColorConvInitOK) return;
+    if (inYCbCrMatrix == YCbCrMatrix_BT601)
+    {
+        MATRIX = MATRIX_BT_601;
+        MATRIX_INV = MATRIX_BT_601_INV;
+    }
+    else if (inYCbCrMatrix == YCbCrMatrix_BT709)
+    {
+        MATRIX = MATRIX_BT_709;
+        MATRIX_INV = MATRIX_BT_709_INV;
+    }
+    else if (inYCbCrMatrix == YCbCrMatrix_BT2020)
+    {
+        MATRIX = MATRIX_BT_2020;
+        MATRIX_INV = MATRIX_BT_2020_INV;
+    }
+    c2y_cyb = int(MATRIX[0][2] * 219 / 255 * 65536 + 0.5);
+    c2y_cyg = int(MATRIX[0][1] * 219 / 255 * 65536 + 0.5);
+    c2y_cyr = int(MATRIX[0][0] * 219 / 255 * 65536 + 0.5);
+    c2y_cu = int(1.0 / (MATRIX_INV[2][1] * 255 / 224) * 1024 + 0.5);
+    c2y_cv = int(1.0 / (MATRIX_INV[0][2] * 255 / 224) * 1024 + 0.5);
+
+    y2c_cbu = int((MATRIX_INV[2][1] * 255 / 224) * 65536 + 0.5);
+    y2c_cgu = int(MATRIX_INV[2][1] * 255 / 224 * (MATRIX[0][2] / MATRIX[0][1]) * 65536 + 0.5);
+    y2c_cgv = int(MATRIX_INV[0][2] * 255 / 224 * (MATRIX[0][0] / MATRIX[0][1]) * 65536 + 0.5);
+    y2c_crv = int((MATRIX_INV[0][2] * 255 / 224) * 65536 + 0.5);
 
     int i;
 
@@ -78,6 +133,10 @@ void ColorConvInit()
 
     fColorConvInitOK = true;
 }
+void ColorConvInit()
+{
+    ColorConvInitOther(YCbCrMatrix_BT601, YCbCrRange_TV);
+}
 
 #define rgb2yuv(r1,g1,b1,r2,g2,b2) \
 	int y1 = (c2y_yb[b1] + c2y_yg[g1] + c2y_yr[r1] + 0x108000) >> 16; \
@@ -92,8 +151,10 @@ void ColorConvInit()
 // CMemSubPic
 //
 
-CMemSubPic::CMemSubPic(SubPicDesc& spd)
+CMemSubPic::CMemSubPic(SubPicDesc& spd, int inYCbCrMatrix, int inYCbCrRange)
     : m_spd(spd)
+    , m_eYCbCrMatrix(inYCbCrMatrix)
+    , m_eYCbCrRange(inYCbCrRange)
 {
     m_maxsize.SetSize(spd.w, spd.h);
     m_rcDirty.SetRect(0, 0, spd.w, spd.h);
@@ -191,7 +252,7 @@ STDMETHODIMP CMemSubPic::Unlock(RECT* pDirtyRect)
 
     if(m_spd.type == MSP_YUY2 || m_spd.type == MSP_YV12 || m_spd.type == MSP_IYUV || m_spd.type == MSP_AYUV)
     {
-        ColorConvInit();
+        ColorConvInitOther(m_eYCbCrMatrix, m_eYCbCrRange);
 
         if(m_spd.type == MSP_YUY2 || m_spd.type == MSP_YV12 || m_spd.type == MSP_IYUV)
         {
@@ -596,10 +657,12 @@ STDMETHODIMP CMemSubPic::AlphaBlt(RECT* pSrc, RECT* pDst, SubPicDesc* pTarget)
 // CMemSubPicAllocator
 //
 
-CMemSubPicAllocator::CMemSubPicAllocator(int type, SIZE maxsize)
+CMemSubPicAllocator::CMemSubPicAllocator(int type, SIZE maxsize, int inYCbCrMatrix, int inYCbCrRange)
     : ISubPicAllocatorImpl(maxsize, false, false)
     , m_type(type)
     , m_maxsize(maxsize)
+    , m_eYCbCrMatrix(inYCbCrMatrix)
+    , m_eYCbCrRange(inYCbCrRange)
 {
 }
 
@@ -620,7 +683,7 @@ bool CMemSubPicAllocator::Alloc(bool fStatic, ISubPic** ppSubPic)
  	if(!spd.bits) 
         return(false);
 
-    *ppSubPic = DNew CMemSubPic(spd); 
+    *ppSubPic = DNew CMemSubPic(spd, m_eYCbCrMatrix, m_eYCbCrRange);
  	if(!(*ppSubPic)) 
         return(false);
 

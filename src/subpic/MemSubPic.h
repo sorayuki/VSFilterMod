@@ -24,19 +24,33 @@
 #include "ISubPic.h"
 
 enum {MSP_RGB32, MSP_RGB24, MSP_RGB16, MSP_RGB15, MSP_YUY2, MSP_YV12, MSP_IYUV, MSP_AYUV, MSP_RGBA};
-
+enum YCbCrMatrix
+{
+    YCbCrMatrix_BT601,
+    YCbCrMatrix_BT709,
+    YCbCrMatrix_BT2020,
+    YCbCrMatrix_AUTO
+};
+enum YCbCrRange
+{
+    YCbCrRange_PC,
+    YCbCrRange_TV,
+    YCbCrRange_AUTO
+};
 // CMemSubPic
 
 class CMemSubPic : public ISubPicImpl
 {
 #pragma warning(disable: 4799)
     SubPicDesc m_spd;
+    int    m_eYCbCrMatrix;
+    int     m_eYCbCrRange;
 
 protected:
     STDMETHODIMP_(void*) GetObject(); // returns SubPicDesc*
 
 public:
-    CMemSubPic(SubPicDesc& spd);
+    CMemSubPic(SubPicDesc& spd, int inYCbCrMatrix, int inYCbCrRange);
     virtual ~CMemSubPic();
 
     // ISubPic
@@ -54,10 +68,12 @@ class CMemSubPicAllocator : public ISubPicAllocatorImpl
 {
     int m_type;
     CSize m_maxsize;
+    int    m_eYCbCrMatrix;
+    int     m_eYCbCrRange;
 
     bool Alloc(bool fStatic, ISubPic** ppSubPic);
 
 public:
-    CMemSubPicAllocator(int type, SIZE maxsize);
+    CMemSubPicAllocator(int type, SIZE maxsize, int inYCbCrMatrix=YCbCrMatrix_BT601, int inYCbCrRange=YCbCrRange_TV);
 };
 
