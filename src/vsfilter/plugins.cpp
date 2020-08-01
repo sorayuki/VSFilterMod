@@ -861,14 +861,14 @@ namespace VapourSynth {
 
     class CTextSubVapourSynthFilter : public CTextSubFilter {
     public:
-        CTextSubVapourSynthFilter(const char * file, const int charset, const float fps, int * error) : CTextSubFilter(CString(file), charset, fps) {
+        CTextSubVapourSynthFilter(const wchar_t * file, const int charset, const float fps, int * error) : CTextSubFilter(CString(file), charset, fps) {
             *error = !m_pSubPicProvider ? 1 : 0;
         }
     };
 
     class CVobSubVapourSynthFilter : public CVobSubFilter {
     public:
-        CVobSubVapourSynthFilter(const char * file, int * error) : CVobSubFilter(CString(file)) {
+        CVobSubVapourSynthFilter(const wchar_t * file, int * error) : CVobSubFilter(CString(file)) {
             *error = !m_pSubPicProvider ? 1 : 0;
         }
     };
@@ -1301,14 +1301,16 @@ namespace VapourSynth {
         }
 
         std::string strfile;
-        const char * file = vsapi->propGetData(in, "file", 0, nullptr);
-        if (!file) file = "";
-
-        CA2WEX<> utf8file(file, CP_UTF8);
-        if (PathFileExistsW(utf8file))
+        const char* _file = vsapi->propGetData(in, "file", 0, nullptr);
+        int size = MultiByteToWideChar(CP_UTF8, 0, _file, -1, nullptr, 0);
+        wchar_t* file = new wchar_t[size];
+        MultiByteToWideChar(CP_UTF8, 0, _file, -1, file, size);
+        if (!PathFileExistsW(file))
         {
-            strfile = CW2AEX<>(utf8file, CP_ACP);
-            file = strfile.c_str();
+            delete[] file;
+            size = MultiByteToWideChar(CP_ACP, 0, _file, -1, nullptr, 0);
+            file = new wchar_t[size];
+            MultiByteToWideChar(CP_ACP, 0, _file, -1, file, size);
         }
 
         int charset = int64ToIntS(vsapi->propGetInt(in, "charset", 0, &err));
@@ -1335,7 +1337,7 @@ namespace VapourSynth {
         else
             d.vobsub = new CVobSubVapourSynthFilter { file, &err };
         if (err) {
-            vsapi->setError(out, (filterName + ": can't open " + file).c_str());
+            vsapi->setError(out, (filterName + ": can't open " + _file).c_str());
             vsapi->freeNode(d.node);
             delete d.textsub;
             delete d.vobsub;
@@ -1347,6 +1349,7 @@ namespace VapourSynth {
             d.accurate16bit = false;
 
         vsapi->createFilter(in, out, static_cast<const char *>(userData), vsfilterInit, vsfilterGetFrame, vsfilterFree, fmParallelRequests, 0, ud.release(), core);
+        delete[] file;
     }
 
     //////////////////////////////////////////
