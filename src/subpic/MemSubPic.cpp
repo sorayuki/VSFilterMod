@@ -42,12 +42,12 @@ const float MATRIX_BT_709[3][4] = DEFINE_YUV_MATRIX(0.2126f, 0.7152f, 0.0722f);
 const float MATRIX_BT_709_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.2126f, 0.7152f, 0.0722f);
 const float MATRIX_BT_2020[3][4] = DEFINE_YUV_MATRIX(0.2627f, 0.678f, 0.0593f);
 const float MATRIX_BT_2020_INV[3][4] = DEFINE_YUV_MATRIX_INV(0.2627f, 0.678f, 0.0593f);
-const float YUV_PC[3][4] = {
+const int YUV_PC[3][4] = {
     {255,   0,   0,   0},
     {  0, 255,   0, 128},
     {  0,   0, 255, 128}
 };
-const float YUV_TV[3][4] = {
+const int YUV_TV[3][4] = {
     {219,   0,   0,  16},
     {  0, 224,   0, 128},
     {  0,   0, 224, 128}
@@ -75,12 +75,13 @@ int y2c_gu[256];
 int y2c_gv[256];
 int y2c_rv[256];
 
-const int cy_cy = int(255.0 / 219.0 * 65536 + 0.5);
-const int cy_cy2 = int(255.0 / 219.0 * 32768 + 0.5);
+int cy_cy;
+int cy_cy2;
 
 bool fColorConvInitOK = false;
 const float(*MATRIX)[4] = MATRIX_BT_601;
 const float(*MATRIX_INV)[4] = MATRIX_BT_601_INV;
+const int(*RANGE)[4] = YUV_TV;
 void ColorConvInitOther(int inYCbCrMatrix, int inYCbCrRange)
 {
     if(fColorConvInitOK) return;
@@ -99,16 +100,26 @@ void ColorConvInitOther(int inYCbCrMatrix, int inYCbCrRange)
         MATRIX = MATRIX_BT_2020;
         MATRIX_INV = MATRIX_BT_2020_INV;
     }
-    c2y_cyb = int(MATRIX[0][2] * 219 / 255 * 65536 + 0.5);
-    c2y_cyg = int(MATRIX[0][1] * 219 / 255 * 65536 + 0.5);
-    c2y_cyr = int(MATRIX[0][0] * 219 / 255 * 65536 + 0.5);
-    c2y_cu = int(1.0 / (MATRIX_INV[2][1] * 255 / 224) * 1024 + 0.5);
-    c2y_cv = int(1.0 / (MATRIX_INV[0][2] * 255 / 224) * 1024 + 0.5);
+    if (inYCbCrRange == YCbCrRange_TV)
+    {
+        RANGE = YUV_TV;
+    }
+    else if (inYCbCrRange == YCbCrRange_PC)
+    {
+        RANGE = YUV_PC;
+    }
+    cy_cy = int(255.0 / RANGE[0][0] * 65536 + 0.5);
+    cy_cy2 = int(255.0 / RANGE[0][0] * 32768 + 0.5);
+    c2y_cyb = int(MATRIX[0][2] * RANGE[0][0] / 255 * 65536 + 0.5);
+    c2y_cyg = int(MATRIX[0][1] * RANGE[0][0] / 255 * 65536 + 0.5);
+    c2y_cyr = int(MATRIX[0][0] * RANGE[0][0] / 255 * 65536 + 0.5);
+    c2y_cu = int(1.0 / (MATRIX_INV[2][1] * 255 / RANGE[1][1]) * 1024 + 0.5);
+    c2y_cv = int(1.0 / (MATRIX_INV[0][2] * 255 / RANGE[2][2]) * 1024 + 0.5);
 
-    y2c_cbu = int((MATRIX_INV[2][1] * 255 / 224) * 65536 + 0.5);
-    y2c_cgu = int(MATRIX_INV[2][1] * 255 / 224 * (MATRIX[0][2] / MATRIX[0][1]) * 65536 + 0.5);
-    y2c_cgv = int(MATRIX_INV[0][2] * 255 / 224 * (MATRIX[0][0] / MATRIX[0][1]) * 65536 + 0.5);
-    y2c_crv = int((MATRIX_INV[0][2] * 255 / 224) * 65536 + 0.5);
+    y2c_cbu = int((MATRIX_INV[2][1] * 255 / RANGE[1][1]) * 65536 + 0.5);
+    y2c_cgu = int(MATRIX_INV[2][1] * 255 / RANGE[1][1] * (MATRIX[0][2] / MATRIX[0][1]) * 65536 + 0.5);
+    y2c_cgv = int(MATRIX_INV[0][2] * 255 / RANGE[2][2] * (MATRIX[0][0] / MATRIX[0][1]) * 65536 + 0.5);
+    y2c_crv = int((MATRIX_INV[0][2] * 255 / RANGE[2][2]) * 65536 + 0.5);
 
     int i;
 
@@ -137,15 +148,6 @@ void ColorConvInit()
 {
     ColorConvInitOther(YCbCrMatrix_BT601, YCbCrRange_TV);
 }
-
-#define rgb2yuv(r1,g1,b1,r2,g2,b2) \
-	int y1 = (c2y_yb[b1] + c2y_yg[g1] + c2y_yr[r1] + 0x108000) >> 16; \
-	int y2 = (c2y_yb[b2] + c2y_yg[g2] + c2y_yr[r2] + 0x108000) >> 16; \
-\
-	int scaled_y = (y1+y2-32) * cy_cy2; \
-\
-	unsigned char u = Clip[(((((b1+b2)<<15) - scaled_y) >> 10) * c2y_cu + 0x800000 + 0x8000) >> 16]; \
-	unsigned char v = Clip[(((((r1+r2)<<15) - scaled_y) >> 10) * c2y_cv + 0x800000 + 0x8000) >> 16]; \
  
 //
 // CMemSubPic
@@ -308,18 +310,18 @@ STDMETHODIMP CMemSubPic::Unlock(RECT* pDirtyRect)
             {
                 if((s[3] + s[7]) < 0x1fe)
                 {
-                    s[1] = (c2y_yb[s[0]] + c2y_yg[s[1]] + c2y_yr[s[2]] + 0x108000) >> 16;
-                    s[5] = (c2y_yb[s[4]] + c2y_yg[s[5]] + c2y_yr[s[6]] + 0x108000) >> 16;
+                    s[1] = (c2y_yb[s[0]] + c2y_yg[s[1]] + c2y_yr[s[2]] + (RANGE[0][3] << 16) + 0x8000) >> 16;
+                    s[5] = (c2y_yb[s[4]] + c2y_yg[s[5]] + c2y_yr[s[6]] + (RANGE[0][3] << 16) + 0x8000) >> 16;
 
-                    int scaled_y = (s[1] + s[5] - 32) * cy_cy2;
+                    int scaled_y = (s[1] + s[5] - RANGE[0][3]*2) * cy_cy2;
 
-                    s[0] = Clip[(((((s[0] + s[4]) << 15) - scaled_y) >> 10) * c2y_cu + 0x800000 + 0x8000) >> 16];
-                    s[4] = Clip[(((((s[2] + s[6]) << 15) - scaled_y) >> 10) * c2y_cv + 0x800000 + 0x8000) >> 16];
+                    s[0] = Clip[(((((s[0] + s[4]) << 15) - scaled_y) >> 10) * c2y_cu + (RANGE[1][3] << 16) + 0x8000) >> 16];
+                    s[4] = Clip[(((((s[2] + s[6]) << 15) - scaled_y) >> 10) * c2y_cv + (RANGE[2][3] << 16) + 0x8000) >> 16];
                 }
                 else
                 {
-                    s[1] = s[5] = 0x10;
-                    s[0] = s[4] = 0x80;
+                    s[1] = s[5] = RANGE[0][3];
+                    s[0] = RANGE[1][3], s[4] = RANGE[2][3];
                 }
             }
         }
@@ -334,16 +336,16 @@ STDMETHODIMP CMemSubPic::Unlock(RECT* pDirtyRect)
             {
                 if(s[3] < 0xff)
                 {
-                    int y = (c2y_yb[s[0]] + c2y_yg[s[1]] + c2y_yr[s[2]] + 0x108000) >> 16;
-                    int scaled_y = (y - 32) * cy_cy;
-                    s[1] = Clip[((((s[0] << 16) - scaled_y) >> 10) * c2y_cu + 0x800000 + 0x8000) >> 16];
-                    s[0] = Clip[((((s[2] << 16) - scaled_y) >> 10) * c2y_cv + 0x800000 + 0x8000) >> 16];
+                    int y = (c2y_yb[s[0]] + c2y_yg[s[1]] + c2y_yr[s[2]] + (RANGE[0][3] << 16) + 0x8000) >> 16;
+                    int scaled_y = (y - RANGE[0][3]*2) * cy_cy;
+                    s[1] = Clip[((((s[0] << 16) - scaled_y) >> 10) * c2y_cu + (RANGE[1][3] << 16) + 0x8000) >> 16];
+                    s[0] = Clip[((((s[2] << 16) - scaled_y) >> 10) * c2y_cv + (RANGE[2][3] << 16) + 0x8000) >> 16];
                     s[2] = y;
                 }
                 else
                 {
-                    s[0] = s[1] = 0x80;
-                    s[2] = 0x10;
+                    s[0] = RANGE[2][3], s[1] = RANGE[1][3];
+                    s[2] = RANGE[0][3];
                 }
             }
         }
