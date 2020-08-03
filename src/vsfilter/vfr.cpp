@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <atlconv.h>
+#include <atlpath.h>
 
 
 // Work with seconds per frame (spf) here instead of fps since that's more natural for the translation we're doing
@@ -174,8 +176,18 @@ VFRTranslator *GetVFRTranslator(const char *vfrfile)
 {
     char buf[32];
     buf[19] = 0; // In "# timecode format v1" the version number is character index 19
-    FILE *f = fopen(vfrfile, "r");
-    VFRTranslator *res = 0;
+    int size = MultiByteToWideChar(CP_UTF8, 0, vfrfile, -1, nullptr, 0);
+    wchar_t* file = new wchar_t[size];
+    MultiByteToWideChar(CP_UTF8, 0, vfrfile, -1, file, size);
+    if (!PathFileExistsW(file))
+    {
+        delete[] file;
+        size = MultiByteToWideChar(CP_ACP, 0, vfrfile, -1, nullptr, 0);
+        file = new wchar_t[size];
+        MultiByteToWideChar(CP_ACP, 0, vfrfile, -1, file, size);
+    }
+    FILE *f = _wfopen(file, L"r");
+    VFRTranslator *res = nullptr;
     if(fgets(buf, 32, f) && buf[0] == '#')
     {
         // So do some really shoddy parsing here, assume the file is good
@@ -188,6 +200,7 @@ VFRTranslator *GetVFRTranslator(const char *vfrfile)
             res = new TimecodesV2(f);
         }
     }
+    delete[] file;
     fclose(f);
     return res;
 }

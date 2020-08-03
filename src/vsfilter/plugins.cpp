@@ -1279,6 +1279,7 @@ namespace VapourSynth {
 
         delete d->textsub;
         delete d->vobsub;
+        if (d->vfr) delete d->vfr;
 
         delete d;
     }
@@ -1300,7 +1301,6 @@ namespace VapourSynth {
             return;
         }
 
-        std::string strfile;
         const char* _file = vsapi->propGetData(in, "file", 0, nullptr);
         int size = MultiByteToWideChar(CP_UTF8, 0, _file, -1, nullptr, 0);
         wchar_t* file = new wchar_t[size];
