@@ -97,7 +97,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (MOD)|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;ISOLATION_AWARE_ENABLED;_WIN32_WINNT=0x0600;_VSMOD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;C:\Program Files %28x86%29\VapourSynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;..\..\vapoursynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
@@ -121,7 +121,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (MOD)|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;DEBUG;ISOLATION_AWARE_ENABLED;_WIN32_WINNT=0x0600;_VSMOD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;C:\Program Files %28x86%29\VapourSynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;..\..\vapoursynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>false</OmitFramePointers>
@@ -147,7 +147,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release (MOD)|x64'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;ISOLATION_AWARE_ENABLED;_WIN32_WINNT=0x0600;_VSMOD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;C:\Program Files %28x86%29\VapourSynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;..\..\vapoursynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -170,7 +170,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (MOD)|x64'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;ISOLATION_AWARE_ENABLED;_WIN32_WINNT=0x0600;_VSMOD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;C:\Program Files %28x86%29\VapourSynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include;..\BaseClasses;..\libpng;..\zlib;..\..\vapoursynth\sdk\include\vapoursynth;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
