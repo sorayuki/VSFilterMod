@@ -1,10 +1,6 @@
 name: C/C++ CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push]
 
 jobs:
   build:
@@ -23,6 +19,7 @@ jobs:
       shell: cmd
       run: cmake -E copy "bin\Win32\VSFilter\Release (MOD)\VSFilterMod.dll" dist\x86\VSFilterMod.dll && cmake -E copy "bin\x64\VSFilter\Release (MOD)\VSFilterMod.dll" dist\x64\VSFilterMod.dll 
     - name: upload
-      uses: actions/upload-artifact@v2.1.3
+      uses: actions/upload-artifact@v2
       with:
+        name: VSFilterMod_bin
         path: dist
