@@ -1755,6 +1755,7 @@ static bool OpenSubStationAlpha(CTextFile* file, CSimpleTextSubtitle& ret, int C
         }
         else if (entry == L"update details")
         {
+            if (buff.IsEmpty()) continue;
             std::vector<TCHAR> tmp(MAX_PATH);
             size_t buflen = GetModuleFileName(0, tmp.data(), MAX_PATH);
             CString tmpstr = tmp.data();
