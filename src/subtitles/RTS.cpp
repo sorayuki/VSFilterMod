@@ -696,10 +696,16 @@ bool CPolygon::GetLONG(CStringW& str, LONG& ret)
     str = str.Mid(e - s);
     return(e > s);
 }
-
+bool CPolygon::Get6BitFixedPoint(CStringW& str, LONG& ret)
+{
+    LPWSTR s = (LPWSTR)(LPCWSTR)str, e = s;
+    ret = wcstod(str, &e) * 64;
+    str.Delete(0, e - s);
+    return(e > s);
+}
 bool CPolygon::GetPOINT(CStringW& str, POINT& ret)
 {
-    return(GetLONG(str, ret.x) && GetLONG(str, ret.y));
+    return(Get6BitFixedPoint(str, ret.x) && Get6BitFixedPoint(str, ret.y));
 }
 
 bool CPolygon::ParseStr()
@@ -816,8 +822,8 @@ bool CPolygon::ParseStr()
 
     for(i = 0; i < m_pathTypesOrg.GetCount(); i++)
     {
-        m_pathPointsOrg[i].x = (int)(64 * m_scalex * m_pathPointsOrg[i].x);
-        m_pathPointsOrg[i].y = (int)(64 * m_scaley * m_pathPointsOrg[i].y);
+        m_pathPointsOrg[i].x = (int)(m_scalex * m_pathPointsOrg[i].x);
+        m_pathPointsOrg[i].y = (int)(m_scaley * m_pathPointsOrg[i].y);
         if(minx > m_pathPointsOrg[i].x) minx = m_pathPointsOrg[i].x;
         if(miny > m_pathPointsOrg[i].y) miny = m_pathPointsOrg[i].y;
         if(maxx < m_pathPointsOrg[i].x) maxx = m_pathPointsOrg[i].x;
