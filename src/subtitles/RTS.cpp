@@ -750,6 +750,7 @@ bool CPolygon::ParseStr()
             }
             break;
         case 'l':
+            if (m_pathPointsOrg.GetCount() < 1) break;
             while(GetPOINT(s, p))
             {
                 m_pathTypesOrg.Add(PT_LINETO);
@@ -758,6 +759,7 @@ bool CPolygon::ParseStr()
             break;
         case 'b':
             j = m_pathTypesOrg.GetCount();
+            if (j < 1) break;
             while(GetPOINT(s, p))
             {
                 m_pathTypesOrg.Add(PT_BEZIERTO);
@@ -769,6 +771,7 @@ bool CPolygon::ParseStr()
             m_pathPointsOrg.SetCount(j);
             break;
         case 's':
+            if (m_pathPointsOrg.GetCount() < 1) break;
             j = lastsplinestart = m_pathTypesOrg.GetCount();
             i = 3;
             while(i-- && GetPOINT(s, p))
@@ -785,6 +788,7 @@ bool CPolygon::ParseStr()
             }
             // no break here
         case 'p':
+            if (m_pathPointsOrg.GetCount() < 3) break;
             while(GetPOINT(s, p))
             {
                 m_pathTypesOrg.Add(PT_BSPLINEPATCHTO);
