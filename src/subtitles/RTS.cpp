@@ -2198,7 +2198,13 @@ bool CRenderedTextSubtitle::ParseSSATag(CSubtitle* sub, CStringW str, STSStyle& 
                                                     | ((int)CalcAnimation((c & 0xff) << 16, style.mod_grad.color[i][j] & 0xff0000, fAnimate)) & 0xff0000)
                                                  : org.mod_grad.color[i][j];
                 }
-
+                if (style.mod_grad.mode[i] == 0)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        style.mod_grad.alpha[i][j] = style.alpha[i];
+                    }
+                }
                 //if (!fAnimate)
                 style.mod_grad.mode[i] = 1;
 
