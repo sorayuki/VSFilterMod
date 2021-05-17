@@ -2196,7 +2196,10 @@ void CSimpleTextSubtitle::Empty()
 #endif
 #endif
 }
-
+static bool SegmentCompStart(const STSSegment& segment, REFERENCE_TIME start)
+{
+    return (segment.start < start);
+}
 void CSimpleTextSubtitle::Add(CStringW str, bool fUnicode, int start, int end, CString style, CString actor, CString effect, CRect marginRect, int layer, int readorder)
 {
     if(str.Trim().IsEmpty() || start > end) return;
@@ -2218,7 +2221,102 @@ void CSimpleTextSubtitle::Add(CStringW str, bool fUnicode, int start, int end, C
     sub.end = end;
     sub.readorder = readorder < 0 ? GetCount() : readorder;
 
-    int n = __super::Add(sub);
+    int n = (int)__super::GetCount();
+    
+    // Entries with a null duration don't belong to any segments since
+    // they are not to be rendered. We choose not to skip them completely
+    // so that they are not lost when saving a subtitle file from MPC-HC
+    // and so that one can change the timings of such entries using the
+    // Subresync bar if necessary.
+    if (start == end) {
+        return;
+    }
+
+    size_t segmentsCount = m_segments.GetCount();
+
+    if (segmentsCount == 0) { // First segment
+        n = (int)__super::Add(sub);
+        STSSegment stss(start, end);
+        stss.subs.Add(n);
+        m_segments.Add(stss);
+    }
+    else {
+        STSSegment* segmentsStart = m_segments.GetData();
+        STSSegment* segmentsEnd = segmentsStart + segmentsCount;
+        STSSegment* segment = std::lower_bound(segmentsStart, segmentsEnd, start, SegmentCompStart);
+
+        n = (int)__super::Add(sub);
+
+        size_t i = segment - segmentsStart;
+        if (i > 0 && m_segments[i - 1].end > start) {
+            // The beginning of i-1th segment isn't modified
+            // by the new entry so separate it in two segments
+            STSSegment stss(m_segments[i - 1].start, start);
+            stss.subs.Copy(m_segments[i - 1].subs);
+            m_segments[i - 1].start = start;
+            m_segments.InsertAt(i - 1, stss);
+        }
+        else if (i < segmentsCount && start < m_segments[i].start) {
+            // The new entry doesn't start in an existing segment.
+            // It might even not overlap with any segment at all
+            STSSegment stss(start, min(end, m_segments[i].start));
+            stss.subs.Add(n);
+            m_segments.InsertAt(i, stss);
+            i++;
+}
+
+        REFERENCE_TIME lastEnd = _I64_MAX;
+        for (; i < m_segments.GetCount() && m_segments[i].start < end; i++) {
+            STSSegment& s = m_segments[i];
+
+            if (lastEnd < s.start) {
+                // There is a gap between the segments overlapped by
+                // the new entry so we have to create a new one
+                STSSegment stss(lastEnd, s.start);
+                stss.subs.Add(n);
+                lastEnd = s.start; // s might not point on the right segment after inserting so do the modification now
+                m_segments.InsertAt(i, stss);
+            }
+            else {
+                if (end < s.end) {
+                    // The end of current segment isn't modified
+                    // by the new entry so separate it in two segments
+                    STSSegment stss(end, s.end);
+                    stss.subs.Copy(s.subs);
+                    s.end = end; // s might not point on the right segment after inserting so do the modification now
+                    m_segments.InsertAt(i + 1, stss);
+                }
+
+                // The array might have been reallocated so create a new reference
+                STSSegment& sAdd = m_segments[i];
+
+                // Add the entry to the current segment now that we are you it belongs to it
+                size_t entriesCount = sAdd.subs.GetCount();
+                // Take a shortcut when possible
+                if (!entriesCount || sub.readorder >= GetAt(sAdd.subs[entriesCount - 1]).readorder) {
+                    sAdd.subs.Add(n);
+                }
+                else {
+                    for (size_t j = 0; j < entriesCount; j++) {
+                        if (sub.readorder < GetAt(sAdd.subs[j]).readorder) {
+                            sAdd.subs.InsertAt(j, n);
+                            break;
+                        }
+                    }
+                }
+
+                lastEnd = sAdd.end;
+            }
+        }
+
+        if (end > m_segments[i - 1].end) {
+            // The new entry ends after the last overlapping segment.
+            // It might even not overlap with any segment at all
+            STSSegment stss(max(start, m_segments[i - 1].end), end);
+            stss.subs.Add(n);
+            m_segments.InsertAt(i, stss);
+        }
+    }
 }
 
 #ifdef _VSMOD
