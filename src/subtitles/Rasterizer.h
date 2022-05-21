@@ -41,6 +41,7 @@ public:
     CPoint curpos;  // output origin point
     int hfull;		// full height
     byte* alphamask;
+    bool isInverse;
 
     MOD_MOVEVC();
 

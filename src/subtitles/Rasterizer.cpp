@@ -2162,6 +2162,7 @@ void MOD_MOVEVC::clear()
     curpos = CPoint(0, 0);
     hfull = 0;
     alphamask = NULL;
+    isInverse = false;
 }
 
 byte MOD_MOVEVC::GetAlphaValue(int wx, int wy)
@@ -2178,9 +2179,9 @@ byte MOD_MOVEVC::GetAlphaValue(int wx, int wy)
 
     //check if the point is in canvas, in case of crash
     if (xInCanvas < 0 || xInCanvas >= spd.cx)
-        alpham = 0;
+        alpham = isInverse ? 0x40 : 0; // assume content outside canvas is visible when using iclip. mask is 6 bit
     else if (yInCanvas < 0 || yInCanvas >= spd.cy)
-        alpham = 0;
+        alpham = isInverse ? 0x40 : 0;
     else
     {
         if ((wx - pos.x) < -curpos.x + 1) alpham = 0;

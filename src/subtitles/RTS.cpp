@@ -3756,6 +3756,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
                 }
                 else mod_vc.pos = vcpos2;
                 mod_vc.enable = true;
+                mod_vc.isInverse = s->m_pClipper ? s->m_pClipper->m_inverse : false;
             }
 #endif
             break;
