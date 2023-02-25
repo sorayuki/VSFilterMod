@@ -1,3 +1,9 @@
+I can spare little energy on this repository so please
+# Check here for newer releases:
+https://github.com/sorayuki/VSFilterMod/network
+
+---
+
 Usage
 =====
 
